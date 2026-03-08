@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>照出真身｜照妖鏡</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <script defer src="main.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* --- 核心變數：Dark Cyberpunk 風格（與施法加印一致） --- */
+    :root {
+      --bg-body: #0f0518;
+      --bg-nav: rgba(15, 5, 24, 0.85);
+      --bg-card: #1a0b2e;
+      --bg-input: rgba(255, 255, 255, 0.05);
+
+      --text-main: #ffffff;
+      --text-sub: #b3a0cd;
+
+      --brand-gradient: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%);
+      --btn-gradient: linear-gradient(135deg, #9d50bb 0%, #6e48aa 100%);
+      --accent-glow: #a200ff;
+      --border-color: rgba(255, 255, 255, 0.15);
+
+      --shadow-card: 0 10px 30px rgba(0,0,0,0.4);
+      --shadow-glow: 0 0 15px rgba(162, 0, 255, 0.3);
+
+      --fs-bump: 8px;
+      --container-max: 1140px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body.wm-page {
+      margin: 0;
+      font-family: 'Lato','Noto Sans TC',sans-serif;
+      color: var(--text-main);
+      background-color: var(--bg-body) !important;
+      background-image: radial-gradient(circle at 50% 0%, #2e1065 0%, transparent 60%);
+      background-attachment: fixed;
+      line-height: 1.7;
+      font-size: calc(16px + var(--fs-bump)); /* 24px */
+    }
+
+    .container { max-width: var(--container-max); margin: 0 auto; padding: 0 24px; }
+
+    /* --- 按鈕樣式 (Neon pill，同施法加印) --- */
+    .cta-btn,
+    .upload-as-btn {
+      display: inline-block;
+      padding: 12px 32px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+      border: none;
+      font-size: calc(16px + var(--fs-bump));
+      transition: all 0.3s ease;
+      background: var(--btn-gradient);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      margin: 0;
+    }
+
+    .cta-btn:hover,
+    .upload-as-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 25px rgba(157, 80, 187, 0.5);
+      color: #fff;
+    }
+
+    /* ★ disabled：外觀完全一樣，只是不能點（與施法加印一致）★ */
+    .cta-btn.disabled,
+    .cta-btn.disabled:hover {
+      pointer-events: none;
+      cursor: not-allowed;
+    }
+
+    .cta-btn.secondary,
+    .cta-btn.home-style {
+      background: transparent;
+      border: 1px solid var(--text-sub);
+      color: var(--text-sub);
+      box-shadow: none;
+    }
+    .cta-btn.secondary:hover,
+    .cta-btn.home-style:hover {
+      border-color: #fff;
+      color: #fff;
+      background: rgba(255,255,255,0.1);
+      box-shadow: 0 0 15px rgba(255,255,255,0.2);
+    }
+
+    .input-file-hidden { display: none; }
+
+    .action-row {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:16px;
+      margin:32px 0 16px;
+    }
+    .action-row .cta-btn,
+    .action-row .upload-as-btn {
+      min-width:240px;
+      max-width:360px;
+      width:100%;
+    }
+
+    /* --- 頁首 Hero (與施法加印一致) --- */
+    .page-hero {
+      background: transparent !important;
+      padding:24px 0 40px;
+      width:100%;
+      position:relative;
+      border-bottom:1px solid rgba(255,255,255,0.05);
+      backdrop-filter:blur(5px);
+    }
+    .page-hero-nav {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      width:100%;
+      padding:16px 24px;
+    }
+    .page-hero h1 {
+      font-size:calc(36px + var(--fs-bump));
+      font-weight:900;
+      margin:0;
+      line-height:1.2;
+      flex:1;
+      text-align:center;
+      background: linear-gradient(to right,#4facfe 0%,#00f2fe 50%,#ff00e6 100%);
+      background-clip:text;
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      filter:drop-shadow(0 0 10px rgba(0,198,255,0.3));
+    }
+
+    .dropdown { position:relative; }
+    .dropbtn {
+      background:rgba(255,255,255,0.1);
+      border:1px solid rgba(255,255,255,0.2);
+      color:#fff;
+      border-radius:8px;
+      padding:8px 14px;
+      cursor:pointer;
+      font-size:calc(20px + var(--fs-bump));
+      transition:all 0.2s;
+    }
+    .dropbtn:hover {
+      background:rgba(255,255,255,0.2);
+      box-shadow:0 0 10px rgba(255,255,255,0.2);
+    }
+    .dropdown-content {
+      display:none;
+      position:absolute;
+      left:0;
+      top:120%;
+      background:#251638;
+      min-width:200px;
+      border:1px solid var(--border-color);
+      border-radius:12px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.5);
+      z-index:2000;
+      overflow:hidden;
+    }
+    .dropdown-content a {
+      display:block;
+      padding:12px 20px;
+      color:var(--text-sub);
+      text-decoration:none;
+      font-size:calc(16px + var(--fs-bump));
+      transition:0.2s;
+    }
+    .dropdown-content a:hover {
+      background:rgba(255,255,255,0.1);
+      color:#fff;
+    }
+
+    .mirror-home {
+      text-decoration:none;
+      color:var(--text-sub);
+      font-size:calc(15px + var(--fs-bump));
+      border-bottom:1px dashed transparent;
+      transition:0.2s;
+    }
+    .mirror-home:hover {
+      color:#fff;
+      border-bottom-color:#fff;
+    }
+
+    /* --- 功能卡片 --- */
+    .tool-section { padding:40px 0; }
+
+    .tool-card {
+      background:var(--bg-card);
+      border:1px solid var(--border-color);
+      border-radius:24px;
+      box-shadow:var(--shadow-card);
+      padding:40px;
+      max-width:1100px;
+      width:100%;
+      margin:0 auto 40px;
+      text-align:center;
+      position:relative;
+    }
+    .tool-card h2 {
+      font-size:calc(24px + var(--fs-bump));
+      margin:0 0 16px;
+      color:#fff;
+      font-weight:700;
+    }
+    .tool-card p {
+      margin:0 auto 24px;
+      max-width:720px;
+      color:var(--text-sub);
+      font-size:calc(16px + var(--fs-bump));
+    }
+    .tool-card b { color:#00f2fe; }
+
+    select {
+      appearance:none;
+      background-color:var(--bg-input);
+      border:1px solid var(--border-color);
+      border-radius:8px;
+      padding:10px 36px 10px 16px;
+      font-size:calc(16px + var(--fs-bump));
+      color:#fff;
+      cursor:pointer;
+      background-image:url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23b3a0cd%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+      background-repeat:no-repeat;
+      background-position:right 12px top 50%;
+      background-size:10px auto;
+      transition:border-color 0.3s;
+    }
+    select:focus,
+    select:hover {
+      border-color:var(--accent-glow);
+      outline:none;
+    }
+    label {
+      color:var(--text-sub);
+      font-weight:bold;
+      margin-right:8px;
+      font-size:calc(16px + var(--fs-bump));
+    }
+
+    .image-preview {
+      width:100%;
+      max-height:400px;
+      object-fit:contain;
+      border-radius:12px;
+      margin:24px auto 0;
+      border:1px solid var(--border-color);
+      box-shadow:0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .image-results {
+      padding:32px;
+      max-width:min(1140px,96vw);
+      margin:20px auto 0;
+    }
+    .result-row {
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      gap:32px;
+      flex-wrap:wrap;
+      margin-top:24px;
+    }
+    .result-block {
+      flex:1 1 500px;
+      max-width:500px;
+      text-align:center;
+    }
+    .result-block p {
+      color:#fff;
+      margin:0 0 12px;
+      font-size:calc(18px + var(--fs-bump));
+    }
+    .result-block img {
+      width:100%;
+      max-width:100%;
+      max-height:60vh;
+      object-fit:contain;
+      border-radius:12px;
+      border:1px solid var(--border-color);
+      box-shadow:0 0 20px rgba(0,0,0,0.5);
+    }
+
+    .spinner {
+      display:none;
+      margin:20px auto;
+      color:var(--text-sub);
+      font-weight:bold;
+      font-size:calc(16px + var(--fs-bump));
+    }
+    .response {
+      margin-top:20px;
+      font-weight:700;
+      white-space:pre-wrap;
+      text-align:center;
+      font-size:calc(16px + var(--fs-bump));
+    }
+    .response.success {
+      color:#00e676;
+      text-shadow:0 0 10px rgba(0,230,118,0.4);
+    }
+    .response.error {
+      color:#ff1744;
+      text-shadow:0 0 10px rgba(255,23,68,0.4);
+    }
+
+    .modal {
+      display:none;
+      position:fixed;
+      z-index:3000;
+      inset:0;
+      background:rgba(0,0,0,0.85);
+      backdrop-filter:blur(5px);
+    }
+    .modal-wrapper {
+      position:relative;
+      width:90%;
+      max-width:600px;
+      margin:100px auto;
+    }
+    .modal-card {
+      position:relative;
+      background:#201030;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,0.1);
+      box-shadow:0 20px 50px rgba(0,0,0,0.6);
+      padding:32px;
+      color:var(--text-sub);
+    }
+    .modal-title {
+      font-weight:900;
+      font-size:calc(24px + var(--fs-bump));
+      margin:0 0 16px;
+      color:#fff;
+    }
+    .modal-body {
+      font-size:calc(16px + var(--fs-bump));
+      line-height:1.6;
+      color:var(--text-sub);
+    }
+    .modal-card .close {
+      position:absolute;
+      right:20px;
+      top:20px;
+      background:none;
+      border:none;
+      font-size:calc(28px + var(--fs-bump));
+      color:var(--text-sub);
+      cursor:pointer;
+      transition:0.2s;
+    }
+    .modal-card .close:hover {
+      color:#fff;
+      transform:scale(1.1);
+    }
+    .modal-actions {
+      display:flex;
+      justify-content:flex-end;
+      gap:12px;
+      margin-top:24px;
+    }
+
+    #imageModal .modal-card {
+      background:transparent;
+      box-shadow:none;
+      border:none;
+      max-width:900px;
+    }
+    #imageModal .close {
+      right:0;
+      top:-40px;
+      color:#fff;
+    }
+
+    @media (max-width:768px){
+      .page-hero h1{font-size:calc(28px + var(--fs-bump));}
+      .page-hero-nav{padding:0 16px;}
+      .tool-card{padding:24px;}
+      .action-row .cta-btn,
+      .action-row .upload-as-btn{max-width:100%;}
+      .result-row{flex-direction:column;align-items:center;}
+    }
+  </style>
+</head>
+
+<body class="wm-page">
+  <!-- 頁首 -->
+  <header class="page-hero">
+    <div class="page-hero-nav">
+      <div class="dropdown">
+        <button class="dropbtn" onclick="toggleMenu()" aria-label="展開選單">&#9776;</button>
+        <div class="dropdown-content" id="dropdownMenu">
+          <a href="watermark.html">施法加印</a>
+          <a href="detect.html">破譯真印</a>
+        </div>
+      </div>
+      <h1>照出真身（修復）</h1>
+      <a href="index.html" class="mirror-home">回首頁</a>
+    </div>
+  </header>
+
+  <main class="tool-section container">
+    <div class="tool-card">
+      <h2>上傳 attack 圖片，系統將取回 Secret 並進行修復</h2>
+      <p>
+        解碼器會偵測當時嵌入的格數（2×2／3×3／4×4），在通道雜訊與壓縮模擬的條件下，
+        輸出 <b>最佳修復版本</b> 與對應資訊。
+      </p>
+
+      <div style="display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px;">
+        <label for="revealGridHint">我當時嵌入的是：</label>
+        <select id="revealGridHint" aria-label="嵌入格數">
+          <option value="2">2×2（4 塊）</option>
+          <option value="3">3×3（9 塊）</option>
+          <option value="4">4×4（16 塊）</option>
+        </select>
+      </div>
+
+      <div class="action-row">
+        <label id="uploadLabel2" for="attackFile" class="upload-as-btn">選擇圖片</label>
+        <button id="revealBtn" type="button" class="cta-btn disabled" disabled aria-busy="false">
+          執行照出真身
+        </button>
+      </div>
+
+      <input type="file" id="attackFile" accept="image/*" class="input-file-hidden" aria-label="選擇要照出的圖片">
+
+      <img id="originalImage2" alt="預覽圖" class="image-preview zoomable" style="display:none;" />
+
+      <div id="wmRevealSpinner" class="spinner" role="status" aria-live="polite">處理中…</div>
+      <div id="wmRevealResp" class="response" aria-live="polite"></div>
+    </div>
+
+    <!-- 結果 -->
+    <section id="imageResults2" class="tool-card image-results" style="display:none;" aria-live="polite" aria-label="照出結果">
+      <h2 style="margin-top:0;">處理結果</h2>
+      <div class="result-row">
+        <div class="result-block">
+          <p>輸入圖片</p>
+          <img id="originalImage2_dup" class="zoomable" style="display:none;" alt="輸入圖片">
+        </div>
+        <div class="result-block">
+          <p>最佳修復</p>
+          <img id="imgRevealOnly" class="zoomable" style="display:none;" alt="還原後圖片">
+          <div style="margin-top:20px;">
+            <a id="downloadBestReveal" href="#" class="cta-btn" style="display:none;">下載修復圖片</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <iframe id="dl_iframe" name="dl_iframe" style="display:none;width:0;height:0;border:0;"></iframe>
+
+  <!-- 上傳提醒 -->
+  <div id="noticeModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="noticeTitle" style="display:none;">
+    <div class="modal-wrapper">
+      <div class="modal-card">
+        <button class="close" id="noticeClose" aria-label="關閉">×</button>
+        <h3 id="noticeTitle" class="modal-title">提醒：上傳檔案之資料處理</h3>
+        <div class="modal-body">
+          您上傳的影像可能包含個人資料（例如臉部特徵）。我們僅於本服務中處理用於修復與驗證之目的，
+          並依據本站隱私權政策與服務條款辦理。
+        </div>
+        <div class="modal-actions">
+          <button id="noticeContinue" class="cta-btn">繼續</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zoom Modal -->
+  <div id="imageModal" class="modal" role="dialog" aria-modal="true" aria-label="圖片放大檢視" style="display:none;">
+    <div class="modal-wrapper">
+      <div class="modal-card" style="max-width:860px;">
+        <button class="close" onclick="closeModal()" aria-label="關閉">×</button>
+        <img class="modal-content" id="modalImage" alt="Zoom" style="max-height:75vh;display:block;margin:0 auto;" />
+        <div class="zoom-controls" style="display:flex;justify-content:center;gap:10px;margin-top:20px;">
+          <button onclick="zoomIn()" class="cta-btn secondary">＋</button>
+          <button onclick="zoomOut()" class="cta-btn secondary">－</button>
+          <button onclick="resetZoom()" class="cta-btn secondary">原尺寸</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 啟用按鈕 + 預覽圖顯示／清除結果 -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var file = document.getElementById('attackFile');
+      var btn  = document.getElementById('revealBtn');
+      if (!file || !btn) return;
+
+      file.addEventListener('change', function () {
+        var hasFile = file.files && file.files[0];
+
+        // 按鈕啟用 / 停用
+        if (hasFile) {
+          btn.disabled = false;
+          btn.classList.remove('disabled');
+        } else {
+          btn.disabled = true;
+          btn.classList.add('disabled');
+        }
+
+        // 預覽圖：選檔就顯示，沒檔就收起來
+        var preview = document.getElementById('originalImage2');
+        if (hasFile && preview) {
+          var reader = new FileReader();
+          reader.onload = function (ev) {
+            preview.src = ev.target.result;
+            preview.style.display = 'block';
+          };
+          reader.readAsDataURL(file.files[0]);
+        } else if (preview) {
+          preview.style.display = 'none';
+          preview.src = '';
+        }
+
+        // 清掉上一次的結果
+        var resSec = document.getElementById('imageResults2');
+        var inDup  = document.getElementById('originalImage2_dup');
+        var outImg = document.getElementById('imgRevealOnly');
+        var dlA    = document.getElementById('downloadBestReveal');
+
+        if (resSec) resSec.style.display = 'none';
+        if (inDup)  { inDup.src = '';  inDup.style.display  = 'none'; }
+        if (outImg) { outImg.src = ''; outImg.style.display = 'none'; }
+        if (dlA) {
+          dlA.style.display = 'none';
+          dlA.removeAttribute('href');
+          dlA.removeAttribute('download');
+        }
+      });
+
+      // 結果圖載入完成後：顯示結果區、收起預覽圖、補上輸入圖
+      var resultImg = document.getElementById('imgRevealOnly');
+      if (resultImg) {
+        resultImg.addEventListener('load', function () {
+          if (!resultImg.src) return; // 被清空時不要動作
+
+          var resSec = document.getElementById('imageResults2');
+          if (resSec) resSec.style.display = 'block';
+
+          var preview = document.getElementById('originalImage2');
+          if (preview) preview.style.display = 'none';
+
+          var inDup = document.getElementById('originalImage2_dup');
+          if (inDup && preview && preview.src) {
+            inDup.src = preview.src;
+            inDup.style.display = 'block';
+          }
+        });
+      }
+    });
+  </script>
+
+  <!-- 下載邏輯 -->
+  <script>
+    (function(){
+      function apiBase(){
+        var host=(location.hostname||"127.0.0.1");
+        var proto=(location.protocol==="https:")?"https":"http";
+        return (host==="localhost"||host==="127.0.0.1") ? (proto+"://127.0.0.1:5001")
+                                                       : (proto+"://"+host+":5001");
+      }
+      function ensureAbs(url){
+        if(!url) return url;
+        if(/^https?:\/\//i.test(url) || /^data:/i.test(url)) return url;
+        var base=apiBase();
+        if(url.startsWith("/")) return base+url;
+        if(/^(open|dl|files)\//i.test(url)) return base+"/"+url;
+        return url;
+      }
+      function toDL(url){
+        url=ensureAbs(url||"");
+        if(!url) return url;
+        if(/^data:/i.test(url)) return url;
+        var m1=url.match(/\/open\/image\/([^/]+)\/([^/]+\.[a-z0-9]+)$/i);
+        if(m1) return apiBase()+"/dl/image/"+encodeURIComponent(m1[1])+"/"+encodeURIComponent(m1[2]);
+        var m2=url.match(/\/files\/([^/]+)\/([^/]+\.[a-z0-9]+)$/i);
+        if(m2) return apiBase()+"/dl/image/"+encodeURIComponent(m2[1])+"/"+encodeURIComponent(m2[2]);
+        return url;
+      }
+      function getRevealURL(){
+        var a=document.getElementById("downloadBestReveal");
+        var src=a && a.getAttribute("href");
+        if(!src || src==="#"){
+          var img=document.getElementById("imgRevealOnly");
+          if(img && img.src) src=img.src;
+        }
+        return src||"";
+      }
+      function downloadViaIframe(url){
+        var f=document.getElementById("dl_iframe");
+        if(!f) return;
+        var u=url + (url.indexOf("?")>-1?"&":"?") + "t=" + Date.now();
+        f.src=u;
+      }
+      document.addEventListener("click", function(ev){
+        var a = ev.target.closest("#downloadBestReveal");
+        if(!a) return;
+        ev.preventDefault();
+        var raw=getRevealURL();
+        if(!raw) return;
+        var url=toDL(raw);
+        if(/^data:/i.test(url)){
+          var tmp=document.createElement("a");
+          tmp.href=url; tmp.download=a.getAttribute("download")||("reveal_"+Date.now()+".png");
+          document.body.appendChild(tmp); tmp.click(); tmp.remove();
+          return;
+        }
+        downloadViaIframe(url);
+      }, {capture:true});
+    })();
+  </script>
+
+  <!-- 上傳前提醒 -->
+  <script>
+    (function () {
+      const fileInput=document.getElementById('attackFile');
+      const uploadLbl=document.getElementById('uploadLabel2');
+      const modal=document.getElementById('noticeModal');
+      const btnOk=document.getElementById('noticeContinue');
+      const btnX=document.getElementById('noticeClose');
+      if(!fileInput||!modal||!uploadLbl) return;
+
+      const openNotice=()=>{ modal.style.display='block'; modal.setAttribute('aria-hidden','false'); };
+      const closeNotice=()=>{ modal.style.display='none';  modal.setAttribute('aria-hidden','true');  };
+
+      uploadLbl.addEventListener('click',e=>{ e.preventDefault(); openNotice(); });
+      btnOk&&btnOk.addEventListener('click',()=>{ closeNotice(); setTimeout(()=>fileInput.click(),0); });
+      btnX&&btnX.addEventListener('click',closeNotice);
+      document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&modal.style.display==='block') closeNotice(); });
+    })();
+  </script>
+
+  <!-- Zoom 功能 & 漢堡選單 -->
+  <script>
+    function closeModal(){ var m=document.getElementById('imageModal'); if(m){ m.style.display='none'; m.setAttribute('aria-hidden','true'); } }
+    function zoomIn(){ zoomScale+=0.1; updateZoom(); }
+    function zoomOut(){ zoomScale=Math.max(0.1,zoomScale-0.1); updateZoom(); }
+    function resetZoom(){ zoomScale=1.0; updateZoom(); }
+    function updateZoom(){ var mi=document.getElementById('modalImage'); if(mi) mi.style.transform='scale('+zoomScale+')'; }
+    function bindZoomToNewImages(root){
+      if(!root) root=document;
+      var modal=document.getElementById('imageModal'), modalImg=document.getElementById('modalImage'); if(!modal||!modalImg) return;
+      root.querySelectorAll('.zoomable').forEach(function(img){
+        if(img.__zoomBound) return; img.__zoomBound=true;
+        img.onclick=function(){ modal.style.display='block'; modal.setAttribute('aria-hidden','false'); modalImg.src=img.src; zoomScale=1.25; updateZoom(); };
+      });
+    }
+    var zoomScale=1.25;
+    document.addEventListener('DOMContentLoaded',function(){
+      bindZoomToNewImages();
+      document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ closeModal(); } });
+    });
+    function toggleMenu(){
+      var m=document.getElementById('dropdownMenu');
+      if(!m) return; m.style.display=(m.style.display==='block'?'none':'block');
+    }
+    window.toggleMenu=toggleMenu;
+  </script>
+</body>
+</html>

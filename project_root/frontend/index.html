@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>首頁｜照妖鏡</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=20251023">
+  <script defer src="{{ url_for('static', filename='main.js') }}?v=20251023"></script>
+
+  <style>
+    /* --- 核心變數：SwapFace 風格 (Dark Cyberpunk) --- */
+    :root {
+      --bg-body: #0f0518;
+      --bg-nav: rgba(15, 5, 24, 0.8);
+      --bg-card: #1a0b2e;
+      --text-main: #ffffff;
+      --text-sub: #b3a0cd;
+      --brand-gradient: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%);
+      --btn-gradient: linear-gradient(135deg, #9d50bb 0%, #6e48aa 100%);
+      --accent-glow: #a200ff;
+      --border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: 'Lato', 'Noto Sans TC', sans-serif;
+      color: var(--text-main);
+      background-color: var(--bg-body);
+      background-image: radial-gradient(circle at 50% 0%, #2e1065 0%, transparent 50%);
+      background-attachment: fixed;
+      line-height: 1.7;
+      /* 全站字體放大 */
+      font-size: 24px;
+    }
+
+    .container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+    .anchor-target { scroll-margin-top: 100px; }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: var(--bg-nav);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .nav-logo {
+      font-size: 32px;
+      font-weight: 900;
+      color: #fff;
+      text-decoration: none;
+      letter-spacing: 1px;
+      text-shadow: 0 0 10px rgba(162, 0, 255, 0.5);
+    }
+    .nav-logo::before { content: '✦ '; color: #d946ef; }
+
+    .nav-links { display: flex; gap: 20px; flex-wrap: wrap; }
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-sub);
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+    }
+    .nav-links a:hover {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+      text-shadow: 0 0 8px #fff;
+    }
+    .menu-toggle { display: none; background:none; border:none; color:#fff; font-size:24px; cursor:pointer;}
+
+    /* hero 基礎樣式（真正排版由下面 header 內聯 style 控制） */
+    .hero {
+      background: transparent;
+      color: #fff;
+      text-align: center;
+      padding: 80px 24px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      min-height: 30vh;
+    }
+    .hero h1 {
+      font-weight: 900;
+      margin: 0 0 20px;
+      background: linear-gradient(to right, #4facfe 0%, #00f2fe 50%, #ff00e6 100%);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 0 20px rgba(0, 198, 255, 0.3));
+    }
+    .hero p {
+      max-width: 720px;
+      color: var(--text-sub);
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .cta-wrap, .reports-wrap, .content-section { padding: 40px 0; }
+    .cta-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
+    .cta-row-two { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
+
+    .cta-card, .report-card, .feature-summary, .thumb {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 32px;
+      text-align: center;
+      transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      overflow: hidden;
+      position: relative;
+    }
+    .cta-card:hover, .report-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(162, 0, 255, 0.5);
+      box-shadow: 0 15px 40px rgba(130, 0, 255, 0.15);
+    }
+
+    .cta-card h3, .report-card h3, .feature-summary h3 {
+      margin: 0 0 12px;
+      font-size: 24px;
+      color: #fff;
+    }
+    .cta-card p, .report-card p, .feature-summary p {
+      margin: 0 0 24px;
+      color: var(--text-sub);
+      font-size: 15px;
+    }
+
+    .card-thumb {
+      max-width: 100%;
+      width: 100%;
+      height: auto;
+      display: block;
+      margin: 0 auto 24px;
+      border-radius: 16px;
+      filter: brightness(0.9) contrast(1.1);
+    }
+    .cta-grid > .cta-card:first-child .card-thumb {
+      max-width: 75%;
+      width: 75%;
+    }
+
+    .cta-btn, .report-link {
+      display: inline-block;
+      padding: 14px 36px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 700;
+      border: none;
+      background: var(--btn-gradient);
+      color: #fff;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(157, 80, 187, 0.4);
+    }
+    .cta-btn:hover, .report-link:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 25px rgba(157, 80, 187, 0.6);
+      background: linear-gradient(135deg, #b06ab3 0%, #4568dc 100%);
+    }
+    .report-link { font-size: 14px; padding: 10px 24px; }
+
+    .section-title {
+      text-align: center;
+      font-size: 36px;
+      margin-bottom: 32px;
+      color: #fff;
+      font-weight: 800;
+    }
+
+    .feature-summary { text-align: left; margin: 0 auto 24px; }
+    .feature-summary ul, .report-card ul { color: var(--text-sub); padding-left: 1.2em; }
+    .feature-summary li, .report-card li { margin: 8px 0; }
+    .feature-summary strong, .report-card strong { color: #fff; }
+
+    .thumbs {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 24px;
+      max-width: 980px;
+      margin: 24px auto 0;
+    }
+    .thumb { padding: 20px; background: rgba(255,255,255,0.03); border: 1px solid transparent; }
+    .thumb h4 { color: #fff; margin: 12px 0 4px; font-size: 18px; }
+    .thumb p { color: var(--text-sub); margin: 0; }
+
+    .report-meta {
+      display: inline-block;
+      font-size: 12px;
+      color: #00c6ff;
+      background: rgba(0, 198, 255, 0.1);
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin: 6px 0 12px;
+      border: 1px solid rgba(0, 198, 255, 0.2);
+    }
+
+    .back-top {
+      position: fixed; right: 28px; bottom: 28px;
+      width: 50px; height: 50px;
+      border-radius: 50%; border: none;
+      background: #d946ef;
+      color: #fff; font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 0 20px rgba(217, 70, 239, 0.5);
+      opacity: 0; pointer-events: none;
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+    .back-top:hover { transform: translateY(-5px); background: #e879f9; }
+
+    @media (max-width:900px){
+      .thumbs{grid-template-columns:1fr 1fr}
+    }
+    @media (max-width:600px){
+      .thumbs{grid-template-columns:1fr}
+    }
+    @media (max-width:768px){
+      .nav-links{display:none}
+      .menu-toggle{display:block}
+      .hero h1{font-size:36px}
+      .cta-row-two{grid-template-columns:1fr}
+    }
+
+    /* 標題大小 +5px */
+    h1 {
+      font-size: calc(56px + 5px) !important;
+    }
+    h2, .section-title {
+      font-size: calc(36px + 5px) !important;
+    }
+    h3 {
+      font-size: calc(24px + 5px) !important;
+    }
+    /* 導覽列 LOGO 放大 */
+    .nav-logo {
+      font-size: 39px !important;
+    }
+    /* p 與 li 一樣大 */
+    p {
+      font-size: 24px !important;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+
+<body>
+  <nav>
+    <a href="/" class="nav-logo">照妖鏡</a>
+    <div class="nav-links">
+      <a href="watermark.html">施法加印</a>
+      <a href="detect.html">破譯真印</a>
+      <a href="restore.html">照出真身</a>
+      <a href="#reports">鑑識報告</a>
+    </div>
+    <button class="menu-toggle" aria-label="開啟選單">&#9776;</button>
+  </nav>
+
+  <!-- 🔹非滿版影片 Hero 區塊（可直接使用） -->
+  <header class="hero"
+          style="
+            padding: 80px 0 40px;
+            min-height: auto;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+          ">
+
+    <!-- 控制影片大小的容器 -->
+    <div style="
+      position: relative;
+      width: 90%;              /* 想再小一點可以改成 60% 或 50% */
+      max-width: 1200px;
+      margin: 0 auto;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 0 25px rgba(162, 0, 255, 0.3);
+    ">
+      <!-- 影片本體：放在與 index.html 同層的「網頁動畫.mp4」 -->
+      <video autoplay muted loop playsinline
+             style="width:100%; height:auto; display:block; object-fit:cover;">
+        <source src="網頁動畫.mp4" type="video/mp4">
+      </video>
+
+      <!-- 深色遮罩：讓文字在影片上仍然清楚 -->
+      <div style="
+        position:absolute;
+        inset:0;
+        background: linear-gradient(
+          to bottom,
+          rgba(15,5,24,0.55),
+          rgba(15,5,24,0.55)
+        );
+      "></div>
+
+    
+    </div>
+  </header>
+
+  <section class="cta-wrap">
+    <div class="container cta-grid">
+      <article class="cta-card anchor-target">
+        <h3>施法加印（防護 / 嵌入）</h3>
+        <img class="card-thumb smart-img"
+             data-srcs="../watermark.png,watermark.png,/watermark.png"
+             alt="施法加印示意" loading="lazy">
+        <p>影像「上線／對外分享前」先嵌入可驗證資訊，方便後續追溯與修復。</p>
+        <a class="cta-btn" href="watermark.html">開始施法加印</a>
+      </article>
+
+      <div class="cta-row-two">
+        <article class="cta-card anchor-target">
+          <h3>破譯真印（偵測）</h3>
+          <img class="card-thumb smart-img"
+               data-srcs="../detect.png,detect.png,/detect.png"
+               alt="破譯真印示意" loading="lazy">
+          <p>收到可疑影像時，輸出像素級遮罩與疊圖，快速標出疑似篡改區域。</p>
+          <a class="cta-btn" href="detect.html">開始偵測</a>
+        </article>
+
+        <article class="cta-card anchor-target">
+          <h3>照出真身（修復）</h3>
+          <img class="card-thumb smart-img"
+               data-srcs="../restore.png,restore.png,/restore.png"
+               alt="照出真身示意" loading="lazy">
+          <p>對已加印內容揭回 Secret，並可強化細節，生成可判讀的修復圖。</p>
+          <a class="cta-btn" href="restore.html">開始修復</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <main>
+    <section id="features" class="content-section container anchor-target">
+      <h2 class="section-title">系統核心功能</h2>
+
+      <div class="feature-summary">
+        <h3>功能概述</h3>
+        <p>「照妖鏡」以「防護（施法加印）→ 偵測（破譯真印）→ 修復（照出真身）」三段式流程，滿足來源溯源、篡改定位與證據修復需求。</p>
+      </div>
+
+      <div class="feature-summary" style="margin-top:24px">
+        <h3>方法與技術</h3>
+        <ul>
+          <li><strong>強韌浮水印（END）：</strong>Encoder–Noise–Decoder 設計，考慮壓縮與失真。</li>
+          <li><strong>偵測（IID-Net）：</strong>BayarConv + 注意力，對局部被改特別敏感。</li>
+          <li><strong>修復流程：</strong>區塊化揭回、亮度／色彩校正，可選超解析強化。</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <section id="reports" class="reports-wrap anchor-target">
+    <div class="container">
+      <h2 class="section-title">鑑識報告</h2>
+      <div class="reports-grid">
+
+        <article class="report-card">
+          <h3>27042 報告</h3>
+          <div class="report-meta">偵測 / 取證 · 引擎：IID-Net（CUDA）</div>
+          <p>針對可疑影像輸出覆疊與遮罩，並附完整執行參數與檔案校驗。</p>
+          <ul>
+            <li><strong>Tamper Coverage：</strong>可疑範圍占比。</li>
+            <li><strong>輸出影像：</strong>Overlay、Mask（灰階 / 二值）、Patched（修復預覽）。</li>
+            <li><strong>關鍵參數：</strong>overlay_alpha 、binary_threshold = 、weights = <code>IID_weights.pth</code>（含 SHA256）。</li>
+            <li><strong>校驗檔：</strong>提供 <code>sha256sums.txt</code> 方便核對所有產物雜湊值。</li>
+          </ul>
+        </article>
+
+        <article class="report-card">
+          <h3>27037 報告</h3>
+          <div class="report-meta">嵌入 / 揭回流程 + 環境與稽核</div>
+          <p>完整記錄從嵌入到揭回的流程影像、系統環境與稽核紀錄，適合稽核與重現。</p>
+          <ul>
+            <li><strong>環境版本：</strong>Python 3.10.11、TensorFlow 2.15.1、Real-ESRGAN（x2plus 型號與路徑）。</li>
+            <li><strong>稽核紀錄：</strong>PSNR = 41.16 dB；模式 <code>auto → residual</code>、<code>refine_reveal</code>（含時間戳）。</li>
+            <li><strong>流程影像：</strong>Cover、Secret (in/out)、Container、Residual 等對照組圖。</li>
+            <li><strong>產物下載：</strong>ZIP 打包、<code>manifest.json</code>、<code>sha256sums.txt</code> 等可驗證檔。</li>
+          </ul>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <button id="backToTop" class="back-top" aria-label="回到頁首">↑</button>
+
+  <script>
+    // 依序嘗試 data-srcs 多個路徑（優先 ../xxx.png）
+    (function(){
+      function tryLoad(img, urls){
+        if(!urls.length){ img.style.display='none'; return; }
+        const url = urls.shift().trim();
+        const test = new Image();
+        test.onload = ()=>{ img.src = url; };
+        test.onerror = ()=>{ tryLoad(img, urls); };
+        test.src = url;
+      }
+      document.querySelectorAll('.smart-img').forEach(img=>{
+        const list = (img.getAttribute('data-srcs')||'').split(',');
+        tryLoad(img, list);
+      });
+    })();
+
+    // 回到頂端按鈕
+    document.addEventListener('DOMContentLoaded', function(){
+      const backTop = document.getElementById('backToTop');
+      function onScroll(){
+        const show = window.scrollY > 400;
+        backTop.style.opacity = show ? '1' : '0';
+        backTop.style.pointerEvents = show ? 'auto' : 'none';
+      }
+      window.addEventListener('scroll', onScroll, {passive:true});
+      onScroll();
+      backTop.addEventListener('click', ()=>window.scrollTo({top:0,behavior:'smooth'}));
+    });
+  </script>
+</body>
+</html>

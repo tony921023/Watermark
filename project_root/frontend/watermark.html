@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>施法加印｜照妖鏡</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <script defer src="main.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+  /* --- 核心變數：Dark Cyberpunk 風格（同步首頁外觀與字體） --- */
+  :root {
+    /* 背景與深色基底 */
+    --bg-body: #0f0518;
+    --bg-nav: rgba(15, 5, 24, 0.85);
+    --bg-card: #1a0b2e;
+    --bg-input: rgba(255, 255, 255, 0.05);
+    
+    /* 文字顏色 */
+    --text-main: #ffffff;
+    --text-sub: #b3a0cd;
+    
+    /* 品牌與霓虹色 */
+    --brand-gradient: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%);
+    --btn-gradient: linear-gradient(135deg, #9d50bb 0%, #6e48aa 100%);
+    --accent-glow: #a200ff;
+    --border-color: rgba(255, 255, 255, 0.15);
+    
+    /* 陰影與光暈 */
+    --shadow-card: 0 10px 30px rgba(0,0,0,0.4);
+    --shadow-glow: 0 0 15px rgba(162, 0, 255, 0.3);
+    
+    /* ★ 跟首頁一樣放大：16px + 8px = 24px 基底字體 ★ */
+    --fs-bump: 8px;
+    --container-max: 1140px;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  /* 覆蓋原有的 body.wm-page 樣式，外觀與字體同步首頁 */
+  body.wm-page {
+    margin: 0;
+    font-family: 'Lato', 'Noto Sans TC', sans-serif;
+    color: var(--text-main);
+    background-color: var(--bg-body) !important;
+    background-image: radial-gradient(circle at 50% 0%, #2e1065 0%, transparent 60%);
+    background-attachment: fixed;
+    line-height: 1.7;
+    font-size: calc(16px + var(--fs-bump)); /* 24px */
+  }
+  
+  .container { max-width: var(--container-max); margin: 0 auto; padding: 0 24px; }
+
+  /* --- 按鈕樣式重製 (Neon Pill，同首頁按鈕) --- */
+  .cta-btn, .upload-as-btn {
+    display: inline-block;
+    padding: 12px 32px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    font-size: calc(16px + var(--fs-bump));  /* 24px */
+    transition: all 0.3s ease;
+    background: var(--btn-gradient);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    margin: 0;
+  }
+
+  .cta-btn:hover, .upload-as-btn:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 8px 25px rgba(157, 80, 187, 0.5);
+    color: #fff;
+  }
+
+  .cta-btn.disabled, .cta-btn.disabled:hover {
+    background: #333;
+    color: #777;
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+  }
+
+  /* 次要按鈕 / Home Style：幽靈按鈕 */
+  .cta-btn.secondary, .cta-btn.home-style {
+    background: transparent;
+    border: 1px solid var(--text-sub);
+    color: var(--text-sub);
+    box-shadow: none;
+  }
+  .cta-btn.secondary:hover, .cta-btn.home-style:hover {
+    border-color: #fff;
+    color: #fff;
+    background: rgba(255,255,255,0.1);
+    box-shadow: 0 0 15px rgba(255,255,255,0.2);
+  }
+
+  .input-file-hidden { display: none; }
+
+  .action-row {
+    display: flex; flex-direction: column; align-items: center; gap: 16px; margin: 32px 0 16px;
+  }
+  .action-row .cta-btn, .action-row .upload-as-btn {
+    min-width: 240px;
+    max-width: 360px;
+    width: 100%;
+  }
+
+  /* --- 頁面頂部 Hero（左漢堡、右回首頁，貼齊整個頁面左右） --- */
+  .page-hero {
+    background: transparent !important;
+    padding: 24px 0 40px;
+    width: 100%;
+    position: relative;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    backdrop-filter: blur(5px);
+  }
+
+  .page-hero-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;   /* 左右拉開 */
+    width: 100%;
+    padding: 16px 24px;               /* 跟首頁 nav 一樣的左右距 */
+  }
+  
+  .page-hero h1 {
+    font-size: calc(36px + var(--fs-bump)); /* 44px，大字標題 */
+    font-weight: 900;
+    margin: 0;
+    line-height: 1.2;
+    flex: 1;                     /* 讓標題佔中間空間 */
+    text-align: center;
+    background: linear-gradient(to right, #4facfe 0%, #00f2fe 50%, #ff00e6 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 10px rgba(0, 198, 255, 0.3));
+  }
+
+  .dropdown {
+    position: relative;
+  }
+
+  .dropbtn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    border-radius: 8px;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: calc(20px + var(--fs-bump)); /* 28px */
+    transition: all 0.2s;
+  }
+  .dropbtn:hover {
+    background: rgba(255,255,255,0.2);
+    box-shadow: 0 0 10px rgba(255,255,255,0.2);
+  }
+  
+  .dropdown-content {
+    display: none; position: absolute; left: 0; top: 120%;
+    background: #251638;
+    min-width: 200px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    z-index: 2000;
+    overflow: hidden;
+  }
+  .dropdown-content a {
+    display: block; padding: 12px 20px;
+    color: var(--text-sub);
+    text-decoration: none;
+    font-size: calc(16px + var(--fs-bump)); /* 24px */
+    transition: 0.2s;
+  }
+  .dropdown-content a:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  
+  .mirror-home {
+    text-decoration: none;
+    color: var(--text-sub);
+    font-size: calc(15px + var(--fs-bump)); /* 23px */
+    border-bottom: 1px dashed transparent;
+    transition: 0.2s;
+  }
+  .mirror-home:hover { color: #fff; border-bottom-color: #fff; }
+
+  /* --- 主要功能卡片 (Dark Glass Card，卡片變寬一點) --- */
+  .tool-section { padding: 40px 0; }
+
+  .tool-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 24px;
+    box-shadow: var(--shadow-card);
+    padding: 40px;
+    max-width: 1100px;          /* 原本 900px → 拉寬 */
+    width: 100%;
+    margin: 0 auto 40px;
+    text-align: center;
+    position: relative;
+  }
+
+  .tool-card h2 {
+    font-size: calc(24px + var(--fs-bump)); /* 32px */
+    margin: 0 0 16px;
+    color: #fff;
+    font-weight: 700;
+  }
+  .tool-card p {
+    margin: 0 auto 24px; max-width: 720px;
+    color: var(--text-sub);
+    font-size: calc(16px + var(--fs-bump)); /* 24px，和首頁 p 一樣 */
+  }
+  .tool-card b { color: #00f2fe; }
+
+  /* 自訂 Select 下拉選單（字體跟首頁一樣放大） */
+  select {
+    appearance: none;
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 10px 36px 10px 16px;
+    font-size: calc(16px + var(--fs-bump)); /* 24px */
+    color: #fff;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23b3a0cd%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px top 50%;
+    background-size: 10px auto;
+    transition: border-color 0.3s;
+  }
+  select:focus, select:hover { border-color: var(--accent-glow); outline: none; }
+  
+  label {
+    color: var(--text-sub);
+    font-weight: bold;
+    margin-right: 8px;
+    font-size: calc(16px + var(--fs-bump)); /* 24px */
+  }
+
+  /* 預覽圖片 */
+  .image-preview {
+    width: 100%; max-height: 400px; object-fit: contain;
+    border-radius: 12px; margin: 24px auto 0;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  }
+
+  /* 結果區域 */
+  .image-results { padding: 32px; max-width: min(1140px, 96vw); margin: 20px auto 0; }
+  .result-row {
+    display: flex; justify-content: center; align-items: flex-start;
+    gap: 32px; flex-wrap: wrap; margin-top: 24px;
+  }
+  .result-block { flex: 1 1 500px; max-width: 500px; text-align: center; }
+  .result-block p {
+    color: #fff;
+    margin: 0 0 12px;
+    font-size: calc(18px + var(--fs-bump)); /* 26px */
+  }
+  .result-block img {
+    width: 100%; max-width: 100%; max-height: 60vh; object-fit: contain;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  }
+  
+  .spinner {
+    display: none;
+    margin: 20px auto;
+    color: var(--text-sub);
+    font-weight: bold;
+    font-size: calc(16px + var(--fs-bump));
+  }
+  .response {
+    margin-top: 20px;
+    font-weight: 700;
+    white-space: pre-wrap;
+    text-align: center;
+    font-size: calc(16px + var(--fs-bump)); /* 24px */
+  }
+  .response.success { color: #00e676; text-shadow: 0 0 10px rgba(0, 230, 118, 0.4); }
+  .response.error { color: #ff1744; text-shadow: 0 0 10px rgba(255, 23, 68, 0.4); }
+
+  /* --- 彈出視窗 (Modal) --- */
+  .modal {
+    display: none; position: fixed; z-index: 3000; inset: 0;
+    background: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
+  }
+  .modal-wrapper { position: relative; width: 90%; max-width: 600px; margin: 100px auto; }
+  .modal-card {
+    position: relative;
+    background: #201030;
+    border-radius: 20px;
+    border: 1px solid rgba(255,255,255,0.1);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    padding: 32px;
+    color: var(--text-sub);
+  }
+  .modal-title {
+    font-weight: 900;
+    font-size: calc(24px + var(--fs-bump)); /* 32px */
+    margin: 0 0 16px;
+    color: #fff;
+  }
+  .modal-body {
+    font-size: calc(16px + var(--fs-bump)); /* 24px */
+    line-height: 1.6;
+    color: var(--text-sub);
+  }
+  .modal-card .close {
+    position: absolute; right: 20px; top: 20px;
+    background: none; border: none;
+    font-size: calc(28px + var(--fs-bump)); /* 36px */
+    color: var(--text-sub);
+    cursor: pointer; transition: 0.2s;
+  }
+  .modal-card .close:hover { color: #fff; transform: scale(1.1); }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+
+  /* 圖片放大 Modal 特別調整 */
+  #imageModal .modal-card { background: transparent; box-shadow: none; border: none; max-width: 900px; }
+  #imageModal .close { right: 0; top: -40px; color: #fff; }
+
+  /* RWD */
+  @media (max-width: 768px) {
+    .page-hero h1 { font-size: calc(28px + var(--fs-bump)); }
+    .page-hero-nav { padding: 0 16px; }
+    .tool-card { padding: 24px; }
+    .action-row .cta-btn, .action-row .upload-as-btn { max-width: 100%; }
+    .result-row { flex-direction: column; align-items: center; }
+  }
+</style>
+
+
+</head>
+<body class="wm-page">
+  <header class="page-hero">
+    <div class="page-hero-nav">
+      <div class="dropdown">
+        <button class="dropbtn" onclick="toggleMenu()" aria-label="展開選單">&#9776;</button>
+        <div class="dropdown-content" id="dropdownMenu">
+          <a href="detect.html">破譯真印</a>
+          <a href="restore.html">照出真身</a>
+        </div>
+      </div>
+      <h1>施法加印（防護）</h1>
+      <a href="index.html" class="mirror-home">回首頁</a>
+    </div>
+  </header>
+
+  <main class="tool-section container">
+    <div class="tool-card">
+      <h2>上傳一張圖，系統以 END 浮水印安全嵌入 Secret</h2>
+      <p>
+        我們採用 <b>END（Encoder-Noise-Decoder）式隱性浮水印</b>：把你要藏的 <b>Secret</b> 先依選擇的拼貼大小
+        （2×2／3×3／4×4）切成小塊，經 <b>Encoder</b> 轉成只有人眼幾乎感覺不到的像素微擾，並加入
+        <b>通道雜訊與壓縮模擬</b> 與 <b>校驗碼</b>。完成後會回傳：<b>已加印的圖片</b> 與 <b>實際使用的 Secret（小圖拼貼）</b>。
+      </p>
+
+      <div style="display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px;">
+        <label for="secretGrid">Secret 拼貼：</label>
+        <select id="secretGrid" aria-label="Secret 拼貼大小">
+          <option value="4">4×4</option>
+          <option value="3">3×3</option>
+          <option value="2" selected>2×2</option>
+        </select>
+      </div>
+
+      <div class="action-row">
+        <label id="uploadLabel" for="singleCover" class="upload-as-btn">選擇圖片</label>
+        <a id="singleEmbedBtn" class="cta-btn">執行施法加印</a>
+      </div>
+
+      <input type="file" id="singleCover" accept="image/*" class="input-file-hidden" />
+      <img id="singlePreview" alt="預覽圖" class="image-preview" style="display:none;" />
+
+      <div id="wmEmbedSpinner" class="spinner" style="display:none;">處理中…</div>
+      <div id="wmEmbedResp" class="response" role="status" aria-live="polite"></div>
+    </div>
+
+    <div id="imageResults1" class="tool-card image-results" style="display:none;">
+      <h2 style="margin-top:0;">處理結果</h2>
+      <div class="result-row">
+        <div class="result-block">
+          <p>已嵌入浮水印的圖片</p>
+          <img id="imgContainer" class="zoomable" style="display:none;" alt="隱寫圖片" />
+          <div style="margin-top:20px;">
+            <a id="downloadContainer" href="#" class="cta-btn" style="display:none;">下載隱寫圖片</a>
+          </div>
+        </div>
+        <div class="result-block">
+          <p>藏入的 Secret（後端自動生成）</p>
+          <img id="imgSecret" class="zoomable" style="display:none;" alt="Secret 小圖" />
+        </div>
+      </div>
+
+      <div class="download-row" id="downloadRow1" style="display:none; justify-content:center; margin-top:24px;">
+        <a id="btn27037" class="cta-btn disabled" href="#" style="display:none;" aria-label="開啟 27037 檢視頁">建立報告中…</a>
+      </div>
+    </div>
+  </main>
+
+  <div id="noticeModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="noticeTitle" style="display:none;">
+    <div class="modal-wrapper">
+      <div class="modal-card">
+        <button class="close" id="noticeClose" aria-label="關閉">×</button>
+        <h3 id="noticeTitle" class="modal-title">提醒：上傳檔案之資料處理</h3>
+        <div class="modal-body">
+          您上傳的影像可能包含個人資料（例如臉部特徵）。我們僅於本服務中處理用於修復與驗證之目的，
+          並依據本站隱私權政策與服務條款辦理。
+        </div>
+        <div class="modal-actions">
+          <button id="noticeContinue" class="cta-btn">繼續</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="imageModal" class="modal" role="dialog" aria-modal="true" aria-label="圖片放大檢視" style="display:none;">
+    <div class="modal-wrapper">
+      <div class="modal-card" style="max-width:860px;">
+        <button class="close" onclick="closeModal()" aria-label="關閉">×</button>
+        <img class="modal-content" id="modalImage" alt="Zoom" style="max-height:75vh;display:block;margin:0 auto;" />
+        <div class="zoom-controls" style="display:flex;justify-content:center;gap:10px;margin-top:20px;">
+          <button onclick="zoomIn()" class="cta-btn secondary">＋</button>
+          <button onclick="zoomOut()" class="cta-btn secondary">－</button>
+          <button onclick="resetZoom()" class="cta-btn secondary">原尺寸</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  function $(id){ return document.getElementById(id); }
+  function show(el){ if(el) el.style.display="inline-block"; }
+  function showBlock(el){ if(el) el.style.display="block"; }
+  function hide(el){ if(el) el.style.display="none"; }
+  function setMsg(id, msg, err){ if(err===undefined) err=false; var el=$(id); if(!el) return; el.textContent=msg||""; el.className="response "+(err?"error":(msg?"success":"")); }
+  function toggleMenu(){ var m=$("dropdownMenu"); if(!m) return; m.style.display=(m.style.display==="block"?"none":"block"); }
+  window.toggleMenu=toggleMenu;
+
+  var host=(location.hostname||"127.0.0.1");
+  var proto=(location.protocol==="https:")?"https":"http";
+  var WM_API_BASE=(host==="localhost"||host==="127.0.0.1")?(proto+"://127.0.0.1:5001"):(proto+"://"+host+":5001");
+
+  function ensureAbsoluteWM(url){ if(!url) return url; if(/^https?:\/\//i.test(url)||/^data:/i.test(url)) return url; if(url.startsWith("/")) return WM_API_BASE+url; if(/^(open|dl|files)\//i.test(url)) return WM_API_BASE+"/"+url; return url; }
+  function pathToOpenImageURL(p){
+    if(!p) return "";
+    if(/^https?:\/\//i.test(p)||/^data:/i.test(p)) return p;
+    try{
+      var m0=p.match(/\/open\/image\/([^/]+)\/([^/]+\.png)/i); if(m0) return WM_API_BASE+"/open/image/"+encodeURIComponent(m0[1])+"/"+encodeURIComponent(m0[2]);
+      var m1=p.match(/\/forensics_runs\/([^/]+)\/([^/]+\.png)/i); if(m1) return WM_API_BASE+"/open/image/"+encodeURIComponent(m1[1])+"/"+encodeURIComponent(m1[2]);
+      var m2=p.match(/\\forensics_runs\\([^\\]+)\\([^\\]+\.png)/i); if(m2) return WM_API_BASE+"/open/image/"+encodeURIComponent(m2[1])+"/"+encodeURIComponent(m2[2]);
+    }catch(e){}
+    return ensureAbsoluteWM(p);
+  }
+  function toDownloadURL(url){
+    try{
+      if(!url) return url; url=ensureAbsoluteWM(url);
+      if(/^data:/i.test(url)) return url;
+      var m=url.match(/\/open\/image\/([^/]+)\/([^/]+\.[a-zA-Z0-9]+)/i);
+      if(m) return WM_API_BASE+"/dl/image/"+encodeURIComponent(m[1])+"/"+encodeURIComponent(m[2]);
+    }catch(e){} return url;
+  }
+  function _parseContentDispositionFilename(cd){
+    if(!cd||typeof cd!=="string") return null;
+    try{
+      var mStar=cd.match(/filename\*\s*=\s*([^']*)''([^;]+)/i); if(mStar) return decodeURIComponent(mStar[2].trim().replace(/^"(.*)"$/,"$1"));
+      var m=cd.match(/filename\s*=\s*"([^"]+)"/i)||cd.match(/filename\s*=\s*([^;]+)/i); if(m) return m[1].trim().replace(/^"(.*)"$/,"$1");
+    }catch(e){} return null;
+  }
+  async function forceDownload(url, filename){
+    if(!url) return;
+    if(/^data:/i.test(url)){
+      var a=document.createElement("a"); a.href=url; a.download=filename||"download"; document.body.appendChild(a); a.click(); a.remove(); return;
+    }
+    try{
+      var res=await fetch(url,{mode:"cors",credentials:"include",cache:"no-store"});
+      if(!res.ok) throw new Error("HTTP "+res.status);
+      var blob=await res.blob();
+      var cd=res.headers.get("content-disposition")||res.headers.get("Content-Disposition");
+      var serverName=_parseContentDispositionFilename(cd);
+      var isDL=/\/dl\/image\//i.test(url);
+      var finalName=serverName||(isDL?null:filename)||(url.split("/").pop()||"download");
+      var objURL=URL.createObjectURL(blob);
+      var a=document.createElement("a"); a.href=objURL; if(finalName) a.download=finalName; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(objURL);
+    }catch(e){ window.open(url,"*blank","noopener"); }
+  }
+  function bindImageDownloads(){
+    [{id:"downloadContainer",fallbackName:null}].forEach(function(cfg){
+      var el=document.getElementById(cfg.id); if(!el) return;
+      var clone=el.cloneNode(true); el.parentNode.replaceChild(clone,el);
+      clone.addEventListener("click",async function(e){
+        var href=clone.getAttribute("href"); if(!href||clone.classList.contains("disabled")) return;
+        e.preventDefault();
+        var nameAttr=clone.getAttribute("download");
+        var name=(typeof nameAttr==="string"&&nameAttr.length)?nameAttr:(cfg.fallbackName||null);
+        await forceDownload(toDownloadURL(ensureAbsoluteWM(href)),name);
+      });
+    });
+  }
+
+  document.getElementById("singleCover").addEventListener("change", function(e){
+    var f=e.target.files && e.target.files[0];
+    var p=document.getElementById("singlePreview");
+    if(!f||!p){ hide(p); return; }
+    var r=new FileReader();
+    r.onload=function(ev){ p.src=ev.target.result; showBlock(p); };
+    r.readAsDataURL(f);
+
+    hide(document.getElementById("imageResults1")); hide(document.getElementById("imgContainer")); hide(document.getElementById("imgSecret"));
+    hide(document.getElementById("downloadContainer"));
+    resetReportButtons(); setMsg("wmEmbedResp","");
+  });
+
+  function resetReportButtons(){
+    var row=document.getElementById("downloadRow1"); if(row) hide(row);
+    var b1=document.getElementById("btn27037");
+    if(b1){
+      b1.classList.add("disabled");
+      b1.removeAttribute("href"); b1.removeAttribute("target"); b1.removeAttribute("rel");
+      b1.setAttribute("tabindex","-1"); b1.textContent="建立報告中…"; hide(b1);
+    }
+  }
+
+  function _appendTilesHints(fd,grid){
+    var n=parseInt(grid,10); if([2,3,4].indexOf(n)===-1) return;
+    var count=n*n;
+    fd.append("secret_grid",String(n));
+    fd.append("secret_tiles_hint",n+"x"+n);
+    fd.append("tiles_hint",n+"x"+n);
+    fd.append("hint_grid",String(n));
+    fd.append("secret_grid_hint",String(n));
+    fd.append("hint_secret_tiles",String(count));
+    fd.append("hint_secret_count",String(count));
+  }
+
+  var _pollTimer27037=null,_pollAbort=null;
+  function _extractReportURL(obj){
+    if(!obj) return "";
+    var c=(typeof obj==="string")?{url:obj}:obj;
+    return ensureAbsoluteWM(c.report_http_url||c.report_url||c.report||c.url||"");
+  }
+  function _enableReportButton(url){
+    var btn=document.getElementById("btn27037"),row=document.getElementById("downloadRow1"); if(!btn||!row) return;
+    btn.href=url; btn.textContent="開啟 27037 檢視頁";
+    btn.classList.remove("disabled"); btn.removeAttribute("tabindex");
+    btn.target="_blank"; btn.rel="noopener"; show(btn); showBlock(row);
+  }
+  function _showBuildingReport(){
+    var btn=document.getElementById("btn27037"),row=document.getElementById("downloadRow1"); if(!btn||!row) return;
+    btn.textContent="建立報告中…";
+    btn.classList.add("disabled");
+    btn.removeAttribute("href"); btn.removeAttribute("target"); btn.removeAttribute("rel");
+    show(btn); showBlock(row);
+  }
+  async function startPolling27037(hints){
+    if(!hints) hints={};
+    _showBuildingReport();
+    if(_pollTimer27037){ clearInterval(_pollTimer27037); _pollTimer27037=null; }
+    if(_pollAbort){ try{_pollAbort.abort();}catch(e){} _pollAbort=null; }
+    var t0=Date.now();
+    _pollAbort=new AbortController();
+    async function once(){
+      try{
+        var qs=new URLSearchParams();
+        if(hints.case_id) qs.set("case_id",String(hints.case_id));
+        if(hints.job_id)  qs.set("job_id", String(hints.job_id));
+        var url=WM_API_BASE+"/27037/latest"+(qs.toString()?("?"+qs.toString()):"");
+        var res=await fetch(url,{signal:_pollAbort.signal,cache:"no-store"});
+        if(!res.ok) return;
+        var data=await res.json().catch(function(){return{};});
+        var repURL=_extractReportURL(data);
+        if(repURL){
+          _enableReportButton(repURL);
+          clearInterval(_pollTimer27037); _pollTimer27037=null;
+          try{_pollAbort.abort();}catch(e){}
+        }
+      }catch(e){}
+      if(Date.now()-t0>120000){ clearInterval(_pollTimer27037); _pollTimer27037=null; }
+    }
+    await once(); _pollTimer27037=setInterval(once,2000);
+  }
+
+  function openGridHintAndConfirm(){
+    var n=parseInt((document.getElementById("secretGrid")||{value:"2"}).value,10);
+    var modal=document.getElementById("gridHintModal");
+    document.getElementById("gridHintText").innerHTML =
+      '<div style="margin:4px 0 10px;">目前選擇：<b>'+n+'×'+n+'</b></div>'+
+      '<div style="margin:6px 0;"><b>2×2</b>：畫質較高、藏入更自然<div style="margin-left:1.75em;">但遇到大面積破壞／裁切時，還原成功率較低。</div></div>'+
+      '<div style="margin:6px 0;"><b>3×3</b>：畫質與韌性折衷<div style="margin-left:1.75em;">多數情境下有不錯的穩定度。</div></div>'+
+      '<div style="margin:6px 0;"><b>4×4</b>：韌性最高<div style="margin-left:1.75em;">較能抵擋大區塊破壞／壓縮，但畫質較差。</div></div>'+
+      '<div style="margin-top:10px;">是否以目前格數開始施法加印？</div>';
+    modal.style.display="block"; modal.setAttribute("aria-hidden","false");
+    var ok=document.getElementById("gridHintOK"), cancel=document.getElementById("gridHintCancel");
+    function onOK(){ cleanup(); closeGridHint(); runEmbedSingle(); }
+    function onCancel(){ cleanup(); closeGridHint(); }
+    function cleanup(){ ok.removeEventListener("click",onOK); cancel.removeEventListener("click",onCancel); }
+    ok.addEventListener("click",onOK); cancel.addEventListener("click",onCancel);
+  }
+  function closeGridHint(){ var m=document.getElementById("gridHintModal"); if(m){ m.style.display="none"; m.setAttribute("aria-hidden","true"); } }
+
+  async function runEmbedSingle(){
+    var file = (document.getElementById("singleCover")?.files?.[0]) || null;
+    if(!file){ setMsg("wmEmbedResp","請先選擇一張圖片。",true); return; }
+    showBlock(document.getElementById("wmEmbedSpinner"));
+    setMsg("wmEmbedResp",""); resetReportButtons();
+
+    try{
+      var fd=new FormData(); fd.append("cover", file);
+      var gridVal=parseInt((document.getElementById("secretGrid")||{value:"2"}).value,10);
+      _appendTilesHints(fd, gridVal);
+
+      var res=await fetch(WM_API_BASE+"/wm/embed",{method:"POST",body:fd,mode:"cors"});
+      if(!res.ok){ var t=""; try{t=await res.text();}catch(e){} throw new Error("HTTP "+res.status+(t?": "+t.slice(0,200):"")); }
+
+      var ct=(res.headers.get("content-type")||"").toLowerCase();
+
+      if(ct.indexOf("image/")===0){
+        var blob=await res.blob();
+        var url=URL.createObjectURL(blob);
+        var stem=(file.name||"image").replace(/\.[^.]+$/,"");
+        var cidTag=String(Date.now());
+
+        document.getElementById("imgContainer").src=url; show(document.getElementById("imgContainer"));
+        var dlC=document.getElementById("downloadContainer"); dlC.href=url; dlC.download=stem+"_"+cidTag+"_wm.png"; show(dlC);
+        bindImageDownloads();
+
+        showBlock(document.getElementById("imageResults1")); hide(document.getElementById("singlePreview"));
+        setMsg("wmEmbedResp","完成 ✔️（回傳單張容器圖）");
+        startPolling27037({});
+        if(typeof bindZoomToNewImages==="function") bindZoomToNewImages();
+        hide(document.getElementById("wmEmbedSpinner")); return;
+      }
+
+      if(ct.indexOf("application/json")===-1){
+        var txt=await res.text(); throw new Error("未知回應格式："+txt.slice(0,160)+"...");
+      }
+
+      var data=await res.json();
+      if(!(data&&(data.ok||data.status==="ok"))){
+        var parts=[]; if(data&&data.error) parts.push("錯誤："+data.error);
+        if(data&&data.stderr) parts.push("stderr 尾端："+String(data.stderr).slice(-500));
+        if(data&&data.stdout) parts.push("stdout 尾端："+String(data.stdout).slice(-500));
+        setMsg("wmEmbedResp",(parts.join("\n\n")||"處理失敗"),true);
+        attachReportButtons(data); hide(document.getElementById("wmEmbedSpinner")); return;
+      }
+
+      var containerViewUrl=data.container_dataurl||data.container||(data.images&&data.images.container?pathToOpenImageURL(data.images.container):null);
+      var secretUrl=data.secret_dataurl||data.secret_tiled_dataurl||(data.images&&data.images.secret_in?pathToOpenImageURL(data.images.secret_in):null);
+      containerViewUrl=ensureAbsoluteWM(containerViewUrl); secretUrl=ensureAbsoluteWM(secretUrl);
+
+      if(containerViewUrl){ document.getElementById("imgContainer").src=containerViewUrl; show(document.getElementById("imgContainer")); }
+      if(secretUrl){ document.getElementById("imgSecret").src=secretUrl; show(document.getElementById("imgSecret")); }
+
+      var stem2=(file.name||"image").replace(/\.[^.]+$/,"");
+      var cidTag2=(data&&data.case_id?String(data.case_id).replace(/[^A-Za-z0-9_-]+/g,"").slice(-8):String(Date.now()));
+      var containerDlUrl=ensureAbsoluteWM(data.download_url)||(containerViewUrl?toDownloadURL(containerViewUrl):null);
+      var containerDlName=data.download_name||null;
+      if(containerDlUrl){
+        var dlC2=document.getElementById("downloadContainer");
+        dlC2.href=containerDlUrl;
+        var isDL=/\/dl\/image\//i.test(containerDlUrl);
+        if(containerDlName){ dlC2.download=containerDlName; }
+        else if(!isDL){ dlC2.download=stem2+"_"+cidTag2+"_wm.png"; }
+        else { dlC2.removeAttribute("download"); }
+        show(dlC2);
+      }
+
+      bindImageDownloads(); attachReportButtons(data);
+      showBlock(document.getElementById("imageResults1")); hide(document.getElementById("singlePreview"));
+      setMsg("wmEmbedResp","完成 ✔️");
+
+      var immediateReport=_extractReportURL(data);
+      if(immediateReport){ _enableReportButton(immediateReport); }
+      else{ startPolling27037({case_id:(data&&data.case_id),job_id:(data&&(data.job_id||data.report_job_id))}); }
+
+    }catch(err){
+      var hint="無法連線後端（5001）。";
+      if(location.protocol==="https:"&&WM_API_BASE.indexOf("http://")===0){ hint+="（前端 HTTPS、後端 HTTP → 瀏覽器擋混合內容）"; }
+      setMsg("wmEmbedResp",hint+"\n詳細："+err.message,true);
+    }finally{ hide(document.getElementById("wmEmbedSpinner")); }
+  }
+  document.getElementById("singleEmbedBtn").addEventListener("click", openGridHintAndConfirm);
+
+  function attachReportButtons(data){
+    var row=document.getElementById("downloadRow1");
+    var reportHref=_extractReportURL(data);
+    if(reportHref){ _enableReportButton(reportHref); } else { _showBuildingReport(); }
+    showBlock(row);
+  }
+
+  function closeModal(){ var m=document.getElementById("imageModal"); if(m){ m.style.display="none"; m.setAttribute("aria-hidden","true"); } }
+  function zoomIn(){ zoomScale+=0.1; updateZoom(); }
+  function zoomOut(){ zoomScale=Math.max(0.1,zoomScale-0.1); updateZoom(); }
+  function resetZoom(){ zoomScale=1.0; updateZoom(); }
+  function updateZoom(){ var mi=document.getElementById("modalImage"); if(mi) mi.style.transform="scale("+zoomScale+")"; }
+  function bindZoomToNewImages(root){
+    if(!root) root=document;
+    var modal=document.getElementById("imageModal"), modalImg=document.getElementById("modalImage"); if(!modal||!modalImg) return;
+    root.querySelectorAll(".zoomable").forEach(function(img){
+      if(img.__zoomBound) return;
+      img.onclick=function(){ modal.style.display="block"; modal.setAttribute("aria-hidden","false"); modalImg.src=img.src; zoomScale=1.25; updateZoom(); };
+      img.__zoomBound=true;
+    });
+  }
+  window.closeModal=closeModal; window.zoomIn=zoomIn; window.zoomOut=zoomOut; window.resetZoom=resetZoom;
+  var zoomScale=1.25;
+  document.addEventListener("DOMContentLoaded", function(){
+    bindImageDownloads();
+    document.addEventListener("keydown", function(e){ if(e.key==="Escape"){ closeModal(); closeGridHint(); } });
+  });
+  </script>
+
+  <script>
+  (function () {
+    const fileInput=document.getElementById('singleCover');
+    const uploadLbl=document.getElementById('uploadLabel');
+    const modal=document.getElementById('noticeModal');
+    const btnX=document.getElementById('noticeClose');
+    const btnOk=document.getElementById('noticeContinue');
+    if(!fileInput||!modal||!uploadLbl) return;
+
+    const openNotice=()=>{ modal.style.display='block'; modal.setAttribute('aria-hidden','false'); };
+    const closeNotice=()=>{ modal.style.display='none';  modal.setAttribute('aria-hidden','true');  };
+
+    uploadLbl.addEventListener('click',function(e){ e.preventDefault(); openNotice(); });
+    btnOk && btnOk.addEventListener('click',function(){ closeNotice(); setTimeout(()=>fileInput.click(),0); });
+    btnX  && btnX.addEventListener('click',closeNotice);
+    document.addEventListener('keydown',e=>{ if(e.key==='Escape' && modal.style.display==='block') closeNotice(); });
+  })();
+  </script>
+
+  <div id="gridHintModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="gridHintTitle" style="display:none;">
+    <div class="modal-wrapper">
+      <div class="modal-card">
+        <button class="close" onclick="closeGridHint()" aria-label="關閉">×</button>
+        <h3 id="gridHintTitle" class="modal-title">嵌入格數說明</h3>
+        <div id="gridHintText" class="modal-body" style="margin-top:6px;"></div>
+        <div class="modal-actions">
+          <button id="gridHintCancel" class="cta-btn secondary">取消</button>
+          <button id="gridHintOK" class="cta-btn">了解，開始</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

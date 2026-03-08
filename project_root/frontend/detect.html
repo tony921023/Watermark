@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-detect-prefix="/api/detect">
+<head>
+  <meta charset="UTF-8" />
+  <title>破譯真印｜照妖鏡</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <script defer src="main.js"></script>
+
+  <style>
+    /* --- Dark Cyberpunk 風格（跟 watermark / restore 一樣） --- */
+    :root {
+      --bg-body: #0f0518;
+      --bg-nav: rgba(15, 5, 24, 0.85);
+      --bg-card: #1a0b2e;
+      --bg-input: rgba(255, 255, 255, 0.05);
+
+      --text-main: #ffffff;
+      --text-sub: #b3a0cd;
+
+      --brand-gradient: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%);
+      --btn-gradient: linear-gradient(135deg, #9d50bb 0%, #6e48aa 100%);
+      --accent-glow: #a200ff;
+      --border-color: rgba(255, 255, 255, 0.15);
+
+      --shadow-card: 0 10px 30px rgba(0,0,0,0.4);
+      --shadow-glow: 0 0 15px rgba(162, 0, 255, 0.3);
+
+      --fs-bump: 8px;
+      --container-max: 1140px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body.wm-page {
+      margin: 0;
+      font-family: 'Lato','Noto Sans TC',sans-serif;
+      color: var(--text-main);
+      background-color: var(--bg-body) !important;
+      background-image: radial-gradient(circle at 50% 0%, #2e1065 0%, transparent 60%);
+      background-attachment: fixed;
+      line-height: 1.7;
+      font-size: calc(16px + var(--fs-bump)); /* 24px */
+    }
+
+    .container { max-width: var(--container-max); margin: 0 auto; padding: 0 24px; }
+
+    /* ---- 按鈕：兩顆都一樣的漸層樣式，沒有變淡版 ---- */
+    .cta-btn,
+    .upload-as-btn {
+      display: inline-block;
+      padding: 12px 32px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 700;
+      text-align: center;
+      cursor: pointer;
+      border: none;
+      font-size: calc(16px + var(--fs-bump));  /* 24px */
+      transition: all 0.3s ease;
+      background: var(--btn-gradient);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      margin: 0;
+    }
+
+    .cta-btn:hover,
+    .upload-as-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 8px 25px rgba(157, 80, 187, 0.5);
+      color: #fff;
+    }
+
+    /* 即使有加 disabled class，也跟正常按鈕看起來一樣 */
+    .cta-btn.disabled,
+    .cta-btn.disabled:hover {
+      background: var(--btn-gradient) !important;
+      color: #fff !important;
+      opacity: 1 !important;
+      cursor: pointer !important;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+      transform: none !important;
+      pointer-events: auto !important;
+    }
+
+    .input-file-hidden { display: none; }
+
+    .action-row {
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:16px;
+      margin:32px 0 16px;
+    }
+    .action-row .cta-btn,
+    .action-row .upload-as-btn {
+      min-width:240px;
+      max-width:360px;
+      width:100%;
+    }
+
+    /* --- 頁首 Hero --- */
+    .page-hero {
+      background: transparent !important;
+      padding:24px 0 40px;
+      width:100%;
+      position:relative;
+      border-bottom:1px solid rgba(255,255,255,0.05);
+      backdrop-filter:blur(5px);
+    }
+    .page-hero-nav {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      width:100%;
+      padding:16px 24px;
+    }
+    .page-hero h1 {
+      font-size:calc(36px + var(--fs-bump));
+      font-weight:900;
+      margin:0;
+      line-height:1.2;
+      flex:1;
+      text-align:center;
+      background: linear-gradient(to right,#4facfe 0%,#00f2fe 50%,#ff00e6 100%);
+      background-clip:text;
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      filter:drop-shadow(0 0 10px rgba(0,198,255,0.3));
+    }
+
+    .dropdown { position:relative; }
+    .dropbtn {
+      background:rgba(255,255,255,0.1);
+      border:1px solid rgba(255,255,255,0.2);
+      color:#fff;
+      border-radius:8px;
+      padding:8px 14px;
+      cursor:pointer;
+      font-size:calc(20px + var(--fs-bump));
+      transition:all 0.2s;
+    }
+    .dropbtn:hover {
+      background:rgba(255,255,255,0.2);
+      box-shadow:0 0 10px rgba(255,255,255,0.2);
+    }
+    .dropdown-content {
+      display:none;
+      position:absolute;
+      left:0;
+      top:120%;
+      background:#251638;
+      min-width:200px;
+      border:1px solid var(--border-color);
+      border-radius:12px;
+      box-shadow:0 10px 30px rgba(0,0,0,0.5);
+      z-index:2000;
+      overflow:hidden;
+    }
+    .dropdown-content a {
+      display:block;
+      padding:12px 20px;
+      color:var(--text-sub);
+      text-decoration:none;
+      font-size:calc(16px + var(--fs-bump));
+      transition:0.2s;
+    }
+    .dropdown-content a:hover {
+      background:rgba(255,255,255,0.1);
+      color:#fff;
+    }
+
+    .mirror-home {
+      text-decoration:none;
+      color:var(--text-sub);
+      font-size:calc(15px + var(--fs-bump));
+      border-bottom:1px dashed transparent;
+      transition:0.2s;
+    }
+    .mirror-home:hover {
+      color:#fff;
+      border-bottom-color:#fff;
+    }
+
+    /* --- 功能卡片 --- */
+    .tool-section { padding:40px 0; }
+
+    .tool-card {
+      background:var(--bg-card);
+      border:1px solid var(--border-color);
+      border-radius:24px;
+      box-shadow:var(--shadow-card);
+      padding:40px;
+      max-width:1100px;
+      width:100%;
+      margin:0 auto 40px;
+      text-align:center;
+      position:relative;
+    }
+    .tool-card h2 {
+      font-size:calc(24px + var(--fs-bump));
+      margin:0 0 16px;
+      color:#fff;
+      font-weight:700;
+    }
+    .tool-card p {
+      margin:0 auto 24px;
+      max-width:720px;
+      color:var(--text-sub);
+      font-size:calc(16px + var(--fs-bump));
+    }
+    .tool-card b { color:#00f2fe; }
+
+    .image-preview {
+      width:100%;
+      max-height:400px;
+      object-fit:contain;
+      border-radius:12px;
+      margin:24px auto 0;
+      border:1px solid var(--border-color);
+      box-shadow:0 4px 20px rgba(0,0,0,0.3);
+      display:none;
+    }
+
+    .image-results {
+      padding:32px;
+      max-width:min(1140px,96vw);
+      margin:20px auto 0;
+    }
+    .result-row {
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      gap:32px;
+      flex-wrap:wrap;
+      margin-top:24px;
+    }
+    .result-block {
+      flex:1 1 500px;
+      max-width:500px;
+      text-align:center;
+    }
+    .result-block p {
+      color:#fff;
+      margin:0 0 12px;
+      font-size:calc(18px + var(--fs-bump));
+    }
+    .result-block img {
+      width:100%;
+      max-width:100%;
+      max-height:60vh;
+      object-fit:contain;
+      border-radius:12px;
+      border:1px solid var(--border-color);
+      box-shadow:0 0 20px rgba(0,0,0,0.5);
+      display:none;
+    }
+
+    .spinner {
+      display:none;
+      margin:20px auto;
+      color:var(--text-sub);
+      font-weight:bold;
+      font-size:calc(16px + var(--fs-bump));
+    }
+    .response {
+      margin-top:20px;
+      font-weight:700;
+      white-space:pre-wrap;
+      text-align:center;
+      font-size:calc(16px + var(--fs-bump));
+    }
+    .response.success {
+      color:#00e676;
+      text-shadow:0 0 10px rgba(0,230,118,0.4);
+    }
+    .response.error {
+      color:#ff1744;
+      text-shadow:0 0 10px rgba(255,23,68,0.4);
+    }
+
+    .modal {
+      display:none;
+      position:fixed;
+      z-index:3000;
+      inset:0;
+      background:rgba(0,0,0,0.85);
+      backdrop-filter:blur(5px);
+    }
+    .modal-wrapper {
+      position:relative;
+      width:90%;
+      max-width:600px;
+      margin:100px auto;
+    }
+    .modal-card {
+      position:relative;
+      background:#201030;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,0.1);
+      box-shadow:0 20px 50px rgba(0,0,0,0.6);
+      padding:32px;
+      color:var(--text-sub);
+    }
+    .modal-card .close {
+      position:absolute;
+      right:20px;
+      top:20px;
+      background:none;
+      border:none;
+      font-size:calc(28px + var(--fs-bump));
+      color:var(--text-sub);
+      cursor:pointer;
+      transition:0.2s;
+    }
+    .modal-card .close:hover {
+      color:#fff;
+      transform:scale(1.1);
+    }
+
+    #imageModal .modal-card {
+      background:transparent;
+      box-shadow:none;
+      border:none;
+      max-width:900px;
+    }
+    #imageModal .close {
+      right:0;
+      top:-40px;
+      color:#fff;
+    }
+
+    @media (max-width:768px){
+      .page-hero h1{font-size:calc(28px + var(--fs-bump));}
+      .page-hero-nav{padding:0 16px;}
+      .tool-card{padding:24px;}
+      .action-row .cta-btn,
+      .action-row .upload-as-btn{max-width:100%;}
+      .result-row{flex-direction:column;align-items:center;}
+    }
+  </style>
+</head>
+
+<body class="wm-page">
+  <header class="page-hero">
+    <div class="page-hero-nav">
+      <div class="dropdown">
+        <button class="dropbtn" onclick="toggleMenu()" aria-label="展開選單">&#9776;</button>
+        <div class="dropdown-content" id="dropdownMenu">
+          <a href="watermark.html">施法加印</a>
+          <a href="restore.html">照出真身</a>
+        </div>
+      </div>
+      <h1>破譯真印（偵測）</h1>
+      <a href="index.html" class="mirror-home">回首頁</a>
+    </div>
+  </header>
+
+  <main class="tool-section container">
+    <div class="tool-card">
+      <h2>什麼是破譯真印？</h2>
+      <p>
+        「破譯真印」把你上傳的圖片送進 <b>IID-Net</b> 修補偵測網路。模型會輸出介於 <b>0–1</b> 的連續遮罩，
+        表示每個像素「被動過手腳的可能性」，並再轉成 <b>紅色疊圖</b>，一眼看出可疑區域。
+      </p>
+      <p>
+        我們針對 <b>拼接、塗抹、局部替換／重畫</b> 等常見手法做優化，搭配遮罩後處理與連通區分析，
+        提供面積與強度等 <b>差異摘要</b> 與前後對照疊圖，協助判讀與留證。
+      </p>
+
+      <div class="action-row">
+        <label id="uploadLabel3" for="imageInput3" class="upload-as-btn">選擇圖片</label>
+        <a id="detectBtn3" class="cta-btn">執行破譯真印</a>
+      </div>
+
+      <input type="file" id="imageInput3" accept="image/*" class="input-file-hidden" />
+      <img id="preview3" alt="預覽圖" class="image-preview" loading="eager" decoding="async" />
+
+      <div id="spinner3" class="spinner" role="status" aria-live="polite">處理中…</div>
+      <div id="response3" class="response" aria-live="polite"></div>
+    </div>
+
+    <section id="imageResults3" class="tool-card image-results" style="display:none;" aria-live="polite" aria-label="破譯結果">
+      <h2 style="margin-top:0;">處理結果</h2>
+      <div class="result-row">
+        <div class="result-block">
+          <p>輸入圖片</p>
+          <img id="originalImage3" class="zoomable" alt="輸入圖片">
+        </div>
+        <div class="result-block">
+          <p>IID-Net 疊圖（紅色遮罩）</p>
+          <img id="detectedImage3" class="zoomable" alt="IID-Net 疊圖">
+          <div style="margin-top:20px;">
+            <a id="btn27042" class="cta-btn disabled" href="#" style="display:none;">開啟 27042 報告</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 上傳提醒 -->
+  <div id="noticeModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="noticeTitle" style="display:none;">
+    <div class="modal-wrapper">
+      <div class="modal-card">
+        <button class="close" id="noticeClose" aria-label="關閉">×</button>
+        <h3 id="noticeTitle" class="modal-title">提醒：上傳檔案之資料處理</h3>
+        <div class="modal-body">
+          您上傳的影像可能包含個人資料（例如臉部特徵）。我們僅於本服務中處理用於修復與驗證之目的，
+          並依據本站隱私權政策與服務條款辦理。
+        </div>
+        <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:24px;">
+          <button id="noticeContinue" class="cta-btn">繼續</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 圖片放大 Modal -->
+  <div id="imageModal" class="modal" role="dialog" aria-modal="true" aria-label="圖片放大檢視" style="display:none;">
+    <div class="modal-wrapper">
+      <div class="modal-card" style="max-width:860px;">
+        <button class="close" onclick="closeModal()" aria-label="關閉">×</button>
+        <img class="modal-content" id="modalImage" alt="Zoom"
+             style="max-height:75vh;display:block;margin:0 auto;" />
+        <div class="zoom-controls" style="display:flex;justify-content:center;gap:10px;margin-top:20px;">
+          <button onclick="zoomIn()" class="cta-btn secondary">＋</button>
+          <button onclick="zoomOut()" class="cta-btn secondary">－</button>
+          <button onclick="resetZoom()" class="cta-btn secondary">原尺寸</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 共用：漢堡選單
+    function toggleMenu(){
+      var m=document.getElementById('dropdownMenu');
+      if(!m) return;
+      m.style.display=(m.style.display==='block'?'none':'block');
+    }
+    window.toggleMenu=toggleMenu;
+  </script>
+
+  <!-- 上傳前提醒 -->
+  <script>
+    (function () {
+      const fileInput=document.getElementById('imageInput3');
+      const uploadLbl=document.getElementById('uploadLabel3');
+      const modal=document.getElementById('noticeModal');
+      const btnOk=document.getElementById('noticeContinue');
+      const btnX=document.getElementById('noticeClose');
+      if(!fileInput||!modal||!uploadLbl) return;
+
+      const openNotice=()=>{ modal.style.display='block'; modal.setAttribute('aria-hidden','false'); };
+      const closeNotice=()=>{ modal.style.display='none';  modal.setAttribute('aria-hidden','true');  };
+
+      uploadLbl.addEventListener('click',e=>{ e.preventDefault(); openNotice(); });
+      btnOk&&btnOk.addEventListener('click',()=>{ closeNotice(); setTimeout(()=>fileInput.click(),0); });
+      btnX&&btnX.addEventListener('click',closeNotice);
+      document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&modal.style.display==='block') closeNotice(); });
+    })();
+  </script>
+
+  <!-- Zoom 功能 -->
+  <script>
+    function closeModal(){ var m=document.getElementById('imageModal'); if(m){ m.style.display='none'; m.setAttribute('aria-hidden','true'); } }
+    function zoomIn(){ zoomScale+=0.1; updateZoom(); }
+    function zoomOut(){ zoomScale=Math.max(0.1,zoomScale-0.1); updateZoom(); }
+    function resetZoom(){ zoomScale=1.0; updateZoom(); }
+    function updateZoom(){ var mi=document.getElementById('modalImage'); if(mi) mi.style.transform='scale('+zoomScale+')'; }
+    function bindZoomToNewImages(root){
+      if(!root) root=document;
+      var modal=document.getElementById('imageModal'),
+          modalImg=document.getElementById('modalImage');
+      if(!modal||!modalImg) return;
+      root.querySelectorAll('.zoomable').forEach(function(img){
+        if(img.__zoomBound) return;
+        img.onclick=function(){
+          modal.style.display='block';
+          modal.setAttribute('aria-hidden','false');
+          modalImg.src=img.src;
+          zoomScale=1.25;
+          updateZoom();
+        };
+        img.__zoomBound=true;
+      });
+    }
+    var zoomScale=1.25;
+    document.addEventListener('DOMContentLoaded',function(){
+      bindZoomToNewImages();
+      document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ closeModal(); } });
+    });
+  </script>
+
+  <!-- 偵測流程（執行中顯示文字，不顯示 405 錯誤給使用者看） -->
+  <script>
+    (function(){
+      const DETECT_PREFIX =
+        window.DETECT_PREFIX ||
+        document.documentElement.getAttribute('data-detect-prefix') ||
+        '/api/detect';
+
+      function fixURL(u){
+        try{
+          if(!u) return u;
+          if(/^https?:\/\//i.test(u)) return u;
+          if(u.startsWith('/27042/')) return DETECT_PREFIX + u;
+          if(/^\/(files|dl|report)\//.test(u)) return DETECT_PREFIX + '/27042/proxy' + u;
+          return u;
+        }catch(e){ return u; }
+      }
+      window.__fixDetectURL = fixURL;
+    })();
+
+    (function(){
+      const fileInput=document.getElementById('imageInput3');
+      const preview=document.getElementById('preview3');
+      const detectBtn=document.getElementById('detectBtn3');
+      const original=document.getElementById('originalImage3');
+      const detected=document.getElementById('detectedImage3');
+      const resultsBox=document.getElementById('imageResults3');
+      const spinner=document.getElementById('spinner3');
+      const respBox=document.getElementById('response3');
+      const reportBtn=document.getElementById('btn27042');
+
+      if(!fileInput) return;
+
+      // 選檔預覽
+      fileInput.addEventListener('change',e=>{
+        const f=e.target.files && e.target.files[0];
+        if(!f){ preview.style.display='none'; return; }
+        const r=new FileReader();
+        r.onload=ev=>{ preview.src=ev.target.result; preview.style.display='block'; };
+        r.readAsDataURL(f);
+
+        // 清空舊結果
+        resultsBox.style.display='none';
+        original.style.display='none'; original.removeAttribute('src');
+        detected.style.display='none'; detected.removeAttribute('src');
+        respBox.textContent='';
+        if(reportBtn){
+          reportBtn.classList.add('disabled');
+          reportBtn.style.display='none';
+          reportBtn.removeAttribute('href');
+          reportBtn.textContent='開啟 27042 報告';
+        }
+      });
+
+      detectBtn.addEventListener('click', async ()=>{
+        const f=fileInput.files && fileInput.files[0];
+        if(!f){
+          respBox.textContent='請先選擇圖片';
+          respBox.className='response error';
+          return;
+        }
+
+        // 顯示原圖（用本地預覽）
+        const fr=new FileReader();
+        fr.onload=ev=>{
+          original.src=ev.target.result;
+          original.style.display='block';
+        };
+        fr.readAsDataURL(f);
+
+        // UI：執行中
+        spinner.style.display='block';
+        respBox.textContent='執行中…';
+        respBox.className='response';
+        preview.style.display='none';
+
+        try{
+          const fd=new FormData();
+          fd.append('image', f, f.name || 'upload.png');
+
+          const res = await fetch(window.__fixDetectURL('/api/detect/result_and_report'), {
+            method:'POST',
+            body:fd
+          });
+
+          // 不把 405 等錯誤文字顯示出來，只簡單顯示「處理失敗」
+          if(!res.ok){
+            throw new Error('處理失敗，請稍後再試');
+          }
+
+          const data = await res.json();
+          if(!data || data.ok === false){
+            throw new Error(data && data.error ? data.error : '處理失敗');
+          }
+
+          // 疊圖
+          if(data.overlay_url){
+            detected.src = window.__fixDetectURL(data.overlay_url);
+            detected.style.display='block';
+          }
+
+          resultsBox.style.display='block';
+
+          // 報告按鈕
+          if(data.report_url){
+            reportBtn.href = window.__fixDetectURL(data.report_url);
+            reportBtn.classList.remove('disabled');
+            reportBtn.style.display='inline-block';
+          }
+
+          respBox.textContent='完成 ✔️';
+          respBox.className='response success';
+        }catch(err){
+          respBox.textContent='處理失敗，請稍後再試。';
+          respBox.className='response error';
+        }finally{
+          spinner.style.display='none';
+        }
+      });
+
+      // 有結果就收起預覽
+      const mo=new MutationObserver(()=>{
+        const hasO=original.src && original.style.display!=='none';
+        const hasD=detected.src && detected.style.display!=='none';
+        if(hasO || hasD){
+          preview.style.display='none';
+          resultsBox.style.display='block';
+        }
+      });
+      mo.observe(original,{attributes:true,attributeFilter:['style','src']});
+      mo.observe(detected,{attributes:true,attributeFilter:['style','src']});
+    })();
+  </script>
+</body>
+</html>
