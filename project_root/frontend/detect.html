@@ -7,341 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
   <script defer src="main.js"></script>
-
-  <style>
-    /* --- Dark Cyberpunk 風格（跟 watermark / restore 一樣） --- */
-    :root {
-      --bg-body: #0f0518;
-      --bg-nav: rgba(15, 5, 24, 0.85);
-      --bg-card: #1a0b2e;
-      --bg-input: rgba(255, 255, 255, 0.05);
-
-      --text-main: #ffffff;
-      --text-sub: #b3a0cd;
-
-      --brand-gradient: linear-gradient(90deg, #00c6ff 0%, #0072ff 100%);
-      --btn-gradient: linear-gradient(135deg, #9d50bb 0%, #6e48aa 100%);
-      --accent-glow: #a200ff;
-      --border-color: rgba(255, 255, 255, 0.15);
-
-      --shadow-card: 0 10px 30px rgba(0,0,0,0.4);
-      --shadow-glow: 0 0 15px rgba(162, 0, 255, 0.3);
-
-      --fs-bump: 8px;
-      --container-max: 1140px;
-    }
-
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-
-    body.wm-page {
-      margin: 0;
-      font-family: 'Lato','Noto Sans TC',sans-serif;
-      color: var(--text-main);
-      background-color: var(--bg-body) !important;
-      background-image: radial-gradient(circle at 50% 0%, #2e1065 0%, transparent 60%);
-      background-attachment: fixed;
-      line-height: 1.7;
-      font-size: calc(16px + var(--fs-bump)); /* 24px */
-    }
-
-    .container { max-width: var(--container-max); margin: 0 auto; padding: 0 24px; }
-
-    /* ---- 按鈕：兩顆都一樣的漸層樣式，沒有變淡版 ---- */
-    .cta-btn,
-    .upload-as-btn {
-      display: inline-block;
-      padding: 12px 32px;
-      border-radius: 50px;
-      text-decoration: none;
-      font-weight: 700;
-      text-align: center;
-      cursor: pointer;
-      border: none;
-      font-size: calc(16px + var(--fs-bump));  /* 24px */
-      transition: all 0.3s ease;
-      background: var(--btn-gradient);
-      color: #fff;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      margin: 0;
-    }
-
-    .cta-btn:hover,
-    .upload-as-btn:hover {
-      transform: translateY(-2px) scale(1.02);
-      box-shadow: 0 8px 25px rgba(157, 80, 187, 0.5);
-      color: #fff;
-    }
-
-    /* 即使有加 disabled class，也跟正常按鈕看起來一樣 */
-    .cta-btn.disabled,
-    .cta-btn.disabled:hover {
-      background: var(--btn-gradient) !important;
-      color: #fff !important;
-      opacity: 1 !important;
-      cursor: pointer !important;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
-      transform: none !important;
-      pointer-events: auto !important;
-    }
-
-    .input-file-hidden { display: none; }
-
-    .action-row {
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:16px;
-      margin:32px 0 16px;
-    }
-    .action-row .cta-btn,
-    .action-row .upload-as-btn {
-      min-width:240px;
-      max-width:360px;
-      width:100%;
-    }
-
-    /* --- 頁首 Hero --- */
-    .page-hero {
-      background: transparent !important;
-      padding:24px 0 40px;
-      width:100%;
-      position:relative;
-      border-bottom:1px solid rgba(255,255,255,0.05);
-      backdrop-filter:blur(5px);
-    }
-    .page-hero-nav {
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      width:100%;
-      padding:16px 24px;
-    }
-    .page-hero h1 {
-      font-size:calc(36px + var(--fs-bump));
-      font-weight:900;
-      margin:0;
-      line-height:1.2;
-      flex:1;
-      text-align:center;
-      background: linear-gradient(to right,#4facfe 0%,#00f2fe 50%,#ff00e6 100%);
-      background-clip:text;
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-      filter:drop-shadow(0 0 10px rgba(0,198,255,0.3));
-    }
-
-    .dropdown { position:relative; }
-    .dropbtn {
-      background:rgba(255,255,255,0.1);
-      border:1px solid rgba(255,255,255,0.2);
-      color:#fff;
-      border-radius:8px;
-      padding:8px 14px;
-      cursor:pointer;
-      font-size:calc(20px + var(--fs-bump));
-      transition:all 0.2s;
-    }
-    .dropbtn:hover {
-      background:rgba(255,255,255,0.2);
-      box-shadow:0 0 10px rgba(255,255,255,0.2);
-    }
-    .dropdown-content {
-      display:none;
-      position:absolute;
-      left:0;
-      top:120%;
-      background:#251638;
-      min-width:200px;
-      border:1px solid var(--border-color);
-      border-radius:12px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.5);
-      z-index:2000;
-      overflow:hidden;
-    }
-    .dropdown-content a {
-      display:block;
-      padding:12px 20px;
-      color:var(--text-sub);
-      text-decoration:none;
-      font-size:calc(16px + var(--fs-bump));
-      transition:0.2s;
-    }
-    .dropdown-content a:hover {
-      background:rgba(255,255,255,0.1);
-      color:#fff;
-    }
-
-    .mirror-home {
-      text-decoration:none;
-      color:var(--text-sub);
-      font-size:calc(15px + var(--fs-bump));
-      border-bottom:1px dashed transparent;
-      transition:0.2s;
-    }
-    .mirror-home:hover {
-      color:#fff;
-      border-bottom-color:#fff;
-    }
-
-    /* --- 功能卡片 --- */
-    .tool-section { padding:40px 0; }
-
-    .tool-card {
-      background:var(--bg-card);
-      border:1px solid var(--border-color);
-      border-radius:24px;
-      box-shadow:var(--shadow-card);
-      padding:40px;
-      max-width:1100px;
-      width:100%;
-      margin:0 auto 40px;
-      text-align:center;
-      position:relative;
-    }
-    .tool-card h2 {
-      font-size:calc(24px + var(--fs-bump));
-      margin:0 0 16px;
-      color:#fff;
-      font-weight:700;
-    }
-    .tool-card p {
-      margin:0 auto 24px;
-      max-width:720px;
-      color:var(--text-sub);
-      font-size:calc(16px + var(--fs-bump));
-    }
-    .tool-card b { color:#00f2fe; }
-
-    .image-preview {
-      width:100%;
-      max-height:400px;
-      object-fit:contain;
-      border-radius:12px;
-      margin:24px auto 0;
-      border:1px solid var(--border-color);
-      box-shadow:0 4px 20px rgba(0,0,0,0.3);
-      display:none;
-    }
-
-    .image-results {
-      padding:32px;
-      max-width:min(1140px,96vw);
-      margin:20px auto 0;
-    }
-    .result-row {
-      display:flex;
-      justify-content:center;
-      align-items:flex-start;
-      gap:32px;
-      flex-wrap:wrap;
-      margin-top:24px;
-    }
-    .result-block {
-      flex:1 1 500px;
-      max-width:500px;
-      text-align:center;
-    }
-    .result-block p {
-      color:#fff;
-      margin:0 0 12px;
-      font-size:calc(18px + var(--fs-bump));
-    }
-    .result-block img {
-      width:100%;
-      max-width:100%;
-      max-height:60vh;
-      object-fit:contain;
-      border-radius:12px;
-      border:1px solid var(--border-color);
-      box-shadow:0 0 20px rgba(0,0,0,0.5);
-      display:none;
-    }
-
-    .spinner {
-      display:none;
-      margin:20px auto;
-      color:var(--text-sub);
-      font-weight:bold;
-      font-size:calc(16px + var(--fs-bump));
-    }
-    .response {
-      margin-top:20px;
-      font-weight:700;
-      white-space:pre-wrap;
-      text-align:center;
-      font-size:calc(16px + var(--fs-bump));
-    }
-    .response.success {
-      color:#00e676;
-      text-shadow:0 0 10px rgba(0,230,118,0.4);
-    }
-    .response.error {
-      color:#ff1744;
-      text-shadow:0 0 10px rgba(255,23,68,0.4);
-    }
-
-    .modal {
-      display:none;
-      position:fixed;
-      z-index:3000;
-      inset:0;
-      background:rgba(0,0,0,0.85);
-      backdrop-filter:blur(5px);
-    }
-    .modal-wrapper {
-      position:relative;
-      width:90%;
-      max-width:600px;
-      margin:100px auto;
-    }
-    .modal-card {
-      position:relative;
-      background:#201030;
-      border-radius:20px;
-      border:1px solid rgba(255,255,255,0.1);
-      box-shadow:0 20px 50px rgba(0,0,0,0.6);
-      padding:32px;
-      color:var(--text-sub);
-    }
-    .modal-card .close {
-      position:absolute;
-      right:20px;
-      top:20px;
-      background:none;
-      border:none;
-      font-size:calc(28px + var(--fs-bump));
-      color:var(--text-sub);
-      cursor:pointer;
-      transition:0.2s;
-    }
-    .modal-card .close:hover {
-      color:#fff;
-      transform:scale(1.1);
-    }
-
-    #imageModal .modal-card {
-      background:transparent;
-      box-shadow:none;
-      border:none;
-      max-width:900px;
-    }
-    #imageModal .close {
-      right:0;
-      top:-40px;
-      color:#fff;
-    }
-
-    @media (max-width:768px){
-      .page-hero h1{font-size:calc(28px + var(--fs-bump));}
-      .page-hero-nav{padding:0 16px;}
-      .tool-card{padding:24px;}
-      .action-row .cta-btn,
-      .action-row .upload-as-btn{max-width:100%;}
-      .result-row{flex-direction:column;align-items:center;}
-    }
-  </style>
 </head>
 
 <body class="wm-page">
@@ -402,7 +69,7 @@
   </main>
 
   <!-- 上傳提醒 -->
-  <div id="noticeModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="noticeTitle" style="display:none;">
+  <div id="noticeModal" class="modal" aria-hidden="true" aria-modal="true" role="dialog" aria-labelledby="noticeTitle" style="display:none;">
     <div class="modal-wrapper">
       <div class="modal-card">
         <button class="close" id="noticeClose" aria-label="關閉">×</button>
@@ -426,23 +93,13 @@
         <img class="modal-content" id="modalImage" alt="Zoom"
              style="max-height:75vh;display:block;margin:0 auto;" />
         <div class="zoom-controls" style="display:flex;justify-content:center;gap:10px;margin-top:20px;">
-          <button onclick="zoomIn()" class="cta-btn secondary">＋</button>
-          <button onclick="zoomOut()" class="cta-btn secondary">－</button>
-          <button onclick="resetZoom()" class="cta-btn secondary">原尺寸</button>
+          <button type="button" onclick="zoomIn()" class="cta-btn secondary">＋</button>
+          <button type="button" onclick="zoomOut()" class="cta-btn secondary">－</button>
+          <button type="button" onclick="resetZoom()" class="cta-btn secondary">原尺寸</button>
         </div>
       </div>
     </div>
   </div>
-
-  <script>
-    // 共用：漢堡選單
-    function toggleMenu(){
-      var m=document.getElementById('dropdownMenu');
-      if(!m) return;
-      m.style.display=(m.style.display==='block'?'none':'block');
-    }
-    window.toggleMenu=toggleMenu;
-  </script>
 
   <!-- 上傳前提醒 -->
   <script>
@@ -462,37 +119,6 @@
       btnX&&btnX.addEventListener('click',closeNotice);
       document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&modal.style.display==='block') closeNotice(); });
     })();
-  </script>
-
-  <!-- Zoom 功能 -->
-  <script>
-    function closeModal(){ var m=document.getElementById('imageModal'); if(m){ m.style.display='none'; m.setAttribute('aria-hidden','true'); } }
-    function zoomIn(){ zoomScale+=0.1; updateZoom(); }
-    function zoomOut(){ zoomScale=Math.max(0.1,zoomScale-0.1); updateZoom(); }
-    function resetZoom(){ zoomScale=1.0; updateZoom(); }
-    function updateZoom(){ var mi=document.getElementById('modalImage'); if(mi) mi.style.transform='scale('+zoomScale+')'; }
-    function bindZoomToNewImages(root){
-      if(!root) root=document;
-      var modal=document.getElementById('imageModal'),
-          modalImg=document.getElementById('modalImage');
-      if(!modal||!modalImg) return;
-      root.querySelectorAll('.zoomable').forEach(function(img){
-        if(img.__zoomBound) return;
-        img.onclick=function(){
-          modal.style.display='block';
-          modal.setAttribute('aria-hidden','false');
-          modalImg.src=img.src;
-          zoomScale=1.25;
-          updateZoom();
-        };
-        img.__zoomBound=true;
-      });
-    }
-    var zoomScale=1.25;
-    document.addEventListener('DOMContentLoaded',function(){
-      bindZoomToNewImages();
-      document.addEventListener('keydown',function(e){ if(e.key==='Escape'){ closeModal(); } });
-    });
   </script>
 
   <!-- 偵測流程（執行中顯示文字，不顯示 405 錯誤給使用者看） -->
@@ -528,6 +154,11 @@
 
       if(!fileInput) return;
 
+      // DOMContentLoaded：初始化 zoom（main.js 提供）
+      document.addEventListener('DOMContentLoaded', function(){ bindZoomToNewImages(); });
+
+      let _detecting = false; // 防連點旗標
+
       // 選檔預覽
       fileInput.addEventListener('change',e=>{
         const f=e.target.files && e.target.files[0];
@@ -550,6 +181,7 @@
       });
 
       detectBtn.addEventListener('click', async ()=>{
+        if(_detecting) return;
         const f=fileInput.files && fileInput.files[0];
         if(!f){
           respBox.textContent='請先選擇圖片';
@@ -565,7 +197,10 @@
         };
         fr.readAsDataURL(f);
 
-        // UI：執行中
+        // UI：執行中（鎖定按鈕防連點）
+        _detecting = true;
+        detectBtn.style.pointerEvents='none';
+        detectBtn.style.opacity='0.6';
         spinner.style.display='block';
         respBox.textContent='執行中…';
         respBox.className='response';
@@ -612,6 +247,9 @@
           respBox.className='response error';
         }finally{
           spinner.style.display='none';
+          _detecting = false;
+          detectBtn.style.pointerEvents='';
+          detectBtn.style.opacity='';
         }
       });
 
