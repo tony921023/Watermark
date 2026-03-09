@@ -694,162 +694,6 @@ async function extractBestRevealTileURL(revealUrl, upscaleTo=768, hintGrid=null)
   };
 }
 
-/* ===================== 照出真身（5000） ===================== */
-/** 取同源後端「最新 27042 報告」一次（不輪詢） */
-async function getLatest27042(){
-  const candidates = ["/api/detect/27042/latest", "/27042/latest"];
-  for (const p of candidates){
-    try{
-      const r = await fetch(`${ORIGIN_BASE}${p}?t=${Date.now()}`);
-      if(!r.ok) continue;
-      const d = await r.json().catch(()=> ({}));
-      const runId = d.run_id || d.id || null;
-      const view  = d.view_url || d.report_url
-                 || (runId ? (p.startsWith("/api/detect/")
-                        ? `${ORIGIN_BASE}/api/detect/27042/view/${encodeURIComponent(runId)}`
-                        : `${ORIGIN_BASE}/27042/view/${encodeURIComponent(runId)}`) : null);
-      if (view) return { runId, viewUrl: view };
-    }catch(_){ /* ignore and try next */ }
-  }
-  return null;
-}
-
-/* 新：一定要「疊圖＋27042 報告」都到手才顯示 */
-async function detectTampering(){
-  const imgFile = $("imageInput3")?.files?.[0];
-  if(!imgFile){
-    displayResponse("response3","請選擇一張圖片。",true);
-    return;
-  }
-
-  const btn = $("detectBtn3");
-  if(btn){ btn.disabled = true; btn.classList.add("disabled"); btn.setAttribute("aria-busy","true"); }
-
-  // 先把 UI 清乾淨（不要先顯示任何結果，等兩者齊全再一次露出）
-  const wrap=$("imageResults3");
-  const ori=$("originalImage3");
-  const det=$("detectedImage3");
-  const reportBtn = $("btn27042");
-  if(wrap) wrap.style.display="none";
-  if(det){ det.src=""; det.style.display="none"; }
-  if(ori){ ori.src=""; ori.style.display="none"; }
-  if(reportBtn){
-    reportBtn.classList.add("disabled");
-    reportBtn.removeAttribute("href"); reportBtn.removeAttribute("target"); reportBtn.removeAttribute("rel");
-    reportBtn.textContent="建立報告中…";
-    reportBtn.style.display="none";
-  }
-  displayResponse("response3","");
-  showSpinner("spinner3","處理中…");
-
-  try{
-    /* A. 優先嘗試同源「一次回傳疊圖＋報告」 */
-    const fdA = new FormData();
-    fdA.append("image", imgFile);
-    fdA.append("return_file","1");
-
-    let overlayUrl = null;
-    let reportUrl  = null;
-
-    try{
-      const r = await fetch(`${ORIGIN_BASE}/api/detect/result_and_report`, { method:"POST", body:fdA, mode:"cors" });
-      if (r.ok){
-        const data = await r.json().catch(()=>null);
-        if (data && (data.ok || data.status==="ok")){
-          overlayUrl = normalizeMaybeRelativeURL(data.overlay_url || data.overlay || data.result_url || null);
-          reportUrl  = normalizeMaybeRelativeURL(data.report_url  || data.view_url || null);
-        }else{
-          throw new Error(data?.error || "result_and_report 回傳格式不正確。");
-        }
-      }else{
-        throw new Error(`result_and_report HTTP ${r.status}`);
-      }
-    }catch(_){ /* 進入 B 流程 */ }
-
-    /* B. 若 A 未拿齊，改走舊法 /result 並補撈 /27042/latest */
-    if(!overlayUrl || !reportUrl){
-      const fdB = new FormData();
-      fdB.append("image", imgFile);
-      fdB.append("return_file","1");
-
-      const resp = await fetch(`${API_BASE}/result`, { method:"POST", body:fdB, mode:"cors" });
-      if(!resp.ok){
-        let t=""; try{ t=await resp.text(); }catch(_){}
-        throw new Error(`HTTP ${resp.status}${t?`: ${t.substring(0,200)}`:""}`);
-      }
-
-      const ct = (resp.headers.get("content-type")||"").toLowerCase();
-      if(ct.startsWith("image/")){
-        const blob = await resp.blob();
-        overlayUrl = URL.createObjectURL(blob);
-      }else if(ct.includes("application/json")){
-        const data = await resp.json();
-        if(!(data?.ok || data?.status==="ok")) throw new Error(data?.error || "後端處理失敗。");
-        overlayUrl = normalizeMaybeRelativeURL(data.overlay_url || data.overlay || data.result_url || null);
-      }else{
-        const txt = await resp.text();
-        const m = txt.match(/<img[^>]+src=["']([^"']+)["']/i);
-        overlayUrl = normalizeMaybeRelativeURL(m ? m[1] : null);
-      }
-
-      if(!overlayUrl) throw new Error("後端沒有提供疊圖 URL。");
-
-      const latest = await getLatest27042();
-      if(latest) reportUrl = latest.viewUrl;
-    }
-
-    // 兩者都要有，才顯示
-    if(!overlayUrl || !reportUrl){
-      throw new Error("已取得部分結果，但 27042 報告或疊圖缺一，為避免誤判不顯示半套成果。");
-    }
-
-    // 這時才把原圖與結果一次呈現
-    const fr = new FileReader();
-    fr.onload = (e)=>{ if(ori){ ori.src=e.target.result; ori.style.display="block"; ori.classList.add("zoomable"); } };
-    fr.readAsDataURL(imgFile);
-
-    if(det){ det.src=overlayUrl; det.style.display="block"; det.classList.add("zoomable"); }
-
-    if(reportBtn){
-      reportBtn.href = reportUrl;
-      reportBtn.target = "_blank";
-      reportBtn.rel = "noopener";
-      reportBtn.textContent = "開啟 27042 報告";
-      reportBtn.classList.remove("disabled");
-      reportBtn.style.display = "inline-block";
-      reportBtn.style.opacity = "";
-      reportBtn.style.pointerEvents = "";
-    }
-
-    if(wrap) wrap.style.display="block";
-    if(typeof bindZoomToNewImages==="function") bindZoomToNewImages();
-
-    displayResponse("response3","完成 ✔️");
-  }catch(err){
-    let hint="無法同時取得疊圖與 27042 報告。";
-    if(location.protocol==="https:" && (API_BASE.startsWith("http://") || ORIGIN_BASE.startsWith("http://")))
-      hint += "（前端 HTTPS，但後端 HTTP，瀏覽器會擋混合內容。）";
-    displayResponse("response3",`${hint} 詳細：${err.message}`,true);
-  }finally{
-    hideSpinner("spinner3");
-    const btn2 = $("detectBtn3");
-    if(btn2){ btn2.disabled = false; btn2.classList.remove("disabled"); btn2.setAttribute("aria-busy","false"); }
-  }
-}
-
-/* ===================== 27042（照出真身報告入口：保留舊 API 但不再輪詢） ===================== */
-async function enable27042Button(retries=18, delayMs=1000){
-  // 舊頁面若有呼叫會顯示灰按鈕；新流程已改成等到拿到 reportUrl 才解鎖
-  const viewBtn = $("btn27042");
-  if(viewBtn){
-    viewBtn.textContent = "尚未產生報告（稍後再試）";
-    viewBtn.classList.add("disabled");
-    viewBtn.style.opacity = "0.6";
-    viewBtn.style.pointerEvents = "none";
-    viewBtn.style.display = "inline-block";
-  }
-}
-
 /* =============== 使用者的 reveal「格數提示」讀取 =============== */
 function _getRevealGridHint(){
   const viaId = $("revealGridHint")?.value;
@@ -1208,41 +1052,6 @@ function initLoopFX(){
 document.addEventListener("DOMContentLoaded", ()=>{
   stripRevealInNav();
 
-  /* ---- 照出真身：選檔只預覽；按執行才顯示結果＋提示 ---- */
-  previewImage("imageInput3","preview3");
-  const detectWrap = $("imageResults3"); if(detectWrap) detectWrap.style.display="none";
-  const detectBtn  = $("detectBtn3");
-  const detectInput= $("imageInput3");
-
-  const syncDetectBtn = ()=>{
-    const has = !!(detectInput && detectInput.files && detectInput.files[0]);
-    if(detectBtn){
-      detectBtn.disabled = !has;
-      detectBtn.classList.toggle("disabled", !has);
-      detectBtn.setAttribute("aria-busy","false");
-    }
-  };
-  syncDetectBtn();
-
-  if(detectInput){
-    detectInput.addEventListener("change",()=>{
-      syncDetectBtn();
-      const det=$("detectedImage3"), ori=$("originalImage3");
-      if(det){ det.src=""; det.style.display="none"; }
-      if(ori){ ori.src=""; ori.style.display="none"; }
-      if(detectWrap) detectWrap.style.display="none";
-      hideSpinner("spinner3");
-      displayResponse("response3","");
-    });
-  }
-  if(detectBtn){
-    detectBtn.addEventListener("click",(e)=>{
-      e.preventDefault();
-      detectBtn.setAttribute("aria-busy","true");
-      detectTampering();
-    });
-  }
-
   /* ---- 施法加印 ---- */
   const embedBtn=$("embedBtn");
   if(embedBtn){ embedBtn.addEventListener("click", ()=>runEmbedGeneric("coverFile","secretFile")); }
@@ -1298,14 +1107,6 @@ document.addEventListener("DOMContentLoaded", ()=>{
   }
 
   // 健康檢查鉤子
-  window.__apiPing = async()=>{
-    try{
-      const r=await fetch(`${API_BASE}/health`);
-      console.log("[5000]/health →", r?.status, await r?.text?.());
-    }catch(e){
-      console.warn("[5000]/health error:", e);
-    }
-  };
   window.__wmPing  = async()=>{
     try{
       const r=await fetch(`${WM_API_BASE}/health`);
@@ -1314,8 +1115,6 @@ document.addEventListener("DOMContentLoaded", ()=>{
       console.warn("[5001]/health error:", e);
     }
   };
-  window.__latest27042 = async()=>{ await enable27042Button(0); };
-
   // 首頁輪播 / 動效
   initSlider("topSlider", 8000);
   initRevealAndParallax();
