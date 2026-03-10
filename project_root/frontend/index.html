@@ -16,82 +16,44 @@
     <a href="/" class="nav-logo">照妖鏡</a>
     <div class="nav-links">
       <a href="watermark.html">施法加印</a>
-      <a href="detect.html">破譯真印</a>
       <a href="restore.html">照出真身</a>
       <a href="#reports">鑑識報告</a>
     </div>
     <button class="menu-toggle" aria-label="開啟選單">&#9776;</button>
   </nav>
 
-  <!-- 🔹非滿版影片 Hero 區塊（可直接使用） -->
-  <header class="hero"
-          style="
-            padding: 80px 0 40px;
-            min-height: auto;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-          ">
-
-    <!-- 控制影片大小的容器 -->
-    <div style="
-      position: relative;
-      width: 90%;              /* 想再小一點可以改成 60% 或 50% */
-      max-width: 1200px;
-      margin: 0 auto;
-      border-radius: 20px;
-      overflow: hidden;
-      box-shadow: 0 0 25px rgba(162, 0, 255, 0.3);
-    ">
-      <!-- 影片本體：放在與 index.html 同層的「網頁動畫.mp4」 -->
-      <video autoplay muted loop playsinline
-             style="width:100%; height:auto; display:block; object-fit:cover;">
+  <header class="hero">
+    <div class="hero-video-wrap">
+      <video autoplay muted loop playsinline>
         <source src="網頁動畫.mp4" type="video/mp4">
       </video>
-
-      <!-- 深色遮罩：讓文字在影片上仍然清楚 -->
-      <div style="
-        position:absolute;
-        inset:0;
-        background: linear-gradient(
-          to bottom,
-          rgba(15,5,24,0.55),
-          rgba(15,5,24,0.55)
-        );
-      "></div>
-
-    
+      <div class="hero-overlay"></div>
     </div>
   </header>
 
   <section class="cta-wrap">
-    <div class="container cta-grid">
-      <article class="cta-card anchor-target">
-        <h3>施法加印（防護 / 嵌入）</h3>
-        <img class="card-thumb smart-img"
-             data-srcs="../watermark.png,watermark.png,/watermark.png"
-             alt="施法加印示意" loading="lazy">
-        <p>影像「上線／對外分享前」先嵌入可驗證資訊，方便後續追溯與修復。</p>
-        <a class="cta-btn" href="watermark.html">開始施法加印</a>
-      </article>
-
-      <div class="cta-row-two">
+    <div class="container">
+      <div class="cta-grid-duo">
         <article class="cta-card anchor-target">
-          <h3>破譯真印（偵測）</h3>
+          <div class="cta-card-badge">EMBED</div>
+          <h3>施法加印</h3>
+          <p class="cta-card-sub">防護 · 嵌入</p>
           <img class="card-thumb smart-img"
-               data-srcs="../detect.png,detect.png,/detect.png"
-               alt="破譯真印示意" loading="lazy">
-          <p>收到可疑影像時，輸出像素級遮罩與疊圖，快速標出疑似篡改區域。</p>
-          <a class="cta-btn" href="detect.html">開始偵測</a>
+               data-srcs="../watermark.png,watermark.png,/watermark.png"
+               alt="施法加印示意" loading="lazy">
+          <p>影像「對外分享前」先嵌入可驗證資訊，支援強韌浮水印與格數自選，方便後續追溯與修復。</p>
+          <a class="cta-btn" href="watermark.html">開始施法加印</a>
         </article>
 
         <article class="cta-card anchor-target">
-          <h3>照出真身（修復）</h3>
+          <div class="cta-card-badge">REVEAL</div>
+          <h3>照出真身</h3>
+          <p class="cta-card-sub">修復 · 還原</p>
           <img class="card-thumb smart-img"
                data-srcs="../restore.png,restore.png,/restore.png"
                alt="照出真身示意" loading="lazy">
-          <p>對已加印內容揭回 Secret，並可強化細節，生成可判讀的修復圖。</p>
-          <a class="cta-btn" href="restore.html">開始修復</a>
+          <p>對已加印影像揭回 Secret，亮度校正與超解析強化，生成可判讀的高品質修復圖。</p>
+          <a class="cta-btn" href="restore.html">開始照出真身</a>
         </article>
       </div>
     </div>
@@ -101,18 +63,20 @@
     <section id="features" class="content-section container anchor-target">
       <h2 class="section-title">系統核心功能</h2>
 
-      <div class="feature-summary">
-        <h3>功能概述</h3>
-        <p>「照妖鏡」以「防護（施法加印）→ 偵測（破譯真印）→ 修復（照出真身）」三段式流程，滿足來源溯源、篡改定位與證據修復需求。</p>
-      </div>
+      <div class="feature-grid">
+        <div class="feature-summary">
+          <h3>功能概述</h3>
+          <p>「照妖鏡」以「防護（施法加印）→ 修復（照出真身）」雙段式流程，滿足來源溯源、浮水印嵌入與證據修復需求。</p>
+        </div>
 
-      <div class="feature-summary" style="margin-top:24px">
-        <h3>方法與技術</h3>
-        <ul>
-          <li><strong>強韌浮水印（END）：</strong>Encoder–Noise–Decoder 設計，考慮壓縮與失真。</li>
-          <li><strong>偵測（IID-Net）：</strong>BayarConv + 注意力，對局部被改特別敏感。</li>
-          <li><strong>修復流程：</strong>區塊化揭回、亮度／色彩校正，可選超解析強化。</li>
-        </ul>
+        <div class="feature-summary">
+          <h3>方法與技術</h3>
+          <ul>
+            <li><strong>強韌浮水印（END）：</strong>Encoder–Noise–Decoder 設計，考慮壓縮與失真。</li>
+            <li><strong>修復流程：</strong>區塊化揭回、亮度／色彩校正，可選超解析強化。</li>
+            <li><strong>格數自選：</strong>2×2、3×3、4×4 拼貼，平衡畫質與韌性。</li>
+          </ul>
+        </div>
       </div>
     </section>
   </main>
@@ -121,18 +85,6 @@
     <div class="container">
       <h2 class="section-title">鑑識報告</h2>
       <div class="reports-grid">
-
-        <article class="report-card">
-          <h3>27042 報告</h3>
-          <div class="report-meta">偵測 / 取證 · 引擎：IID-Net（CUDA）</div>
-          <p>針對可疑影像輸出覆疊與遮罩，並附完整執行參數與檔案校驗。</p>
-          <ul>
-            <li><strong>Tamper Coverage：</strong>可疑範圍占比。</li>
-            <li><strong>輸出影像：</strong>Overlay、Mask（灰階 / 二值）、Patched（修復預覽）。</li>
-            <li><strong>關鍵參數：</strong>overlay_alpha 、binary_threshold = 、weights = <code>IID_weights.pth</code>（含 SHA256）。</li>
-            <li><strong>校驗檔：</strong>提供 <code>sha256sums.txt</code> 方便核對所有產物雜湊值。</li>
-          </ul>
-        </article>
 
         <article class="report-card">
           <h3>27037 報告</h3>
@@ -153,7 +105,6 @@
   <button id="backToTop" class="back-top" aria-label="回到頁首">↑</button>
 
   <script>
-    // 依序嘗試 data-srcs 多個路徑（優先 ../xxx.png）
     (function(){
       function tryLoad(img, urls){
         if(!urls.length){ img.style.display='none'; return; }
@@ -169,7 +120,6 @@
       });
     })();
 
-    // 回到頂端按鈕
     document.addEventListener('DOMContentLoaded', function(){
       const backTop = document.getElementById('backToTop');
       function onScroll(){
@@ -180,6 +130,15 @@
       window.addEventListener('scroll', onScroll, {passive:true});
       onScroll();
       backTop.addEventListener('click', ()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+      // Mobile hamburger
+      const menuBtn = document.querySelector('.menu-toggle');
+      const navLinks = document.querySelector('.nav-links');
+      if(menuBtn && navLinks){
+        menuBtn.addEventListener('click', ()=>{
+          navLinks.classList.toggle('open');
+        });
+      }
     });
   </script>
 </body>
