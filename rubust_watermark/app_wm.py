@@ -16,8 +16,10 @@ import os, io, time, uuid, json, threading, subprocess, glob, re, math, zipfile,
 from pathlib import Path
 from typing import Dict, Tuple, Optional, List
 
+from blockchain import init_chain, get_chain, sha256_bytes
+
 import numpy as np
-from PIL import Image
+from PIL import Image, PngImagePlugin
 import tensorflow as tf
 from flask import Flask, request, jsonify, send_from_directory, send_file, abort
 import cv2
@@ -57,7 +59,7 @@ def _resolve_weight_path(primary: str, fallbacks: list) -> str:
             return str(alt)
     return primary
 
-WEIGHTS_DIR = _P(r"C:\Users\admin\Desktop\rubust_matermark\weights")
+WEIGHTS_DIR = _P(r"C:\Users\admin\Desktop\114屆照妖鏡\rubust_matermark\weights")
 COMBINED_H5 = _resolve_weight_path(str(WEIGHTS_DIR / "combined_model.h5"), [])
 REVEAL_H5   = _resolve_weight_path(
     str(WEIGHTS_DIR / "reveal_network.h5"),
@@ -234,27 +236,27 @@ def get_models() -> Tuple[tf.keras.Model, tf.keras.Model]:
         norm_guess = _detect_norm_in_h5(REVEAL_H5)
         ng2 = _detect_norm_in_h5(COMBINED_H5)
         if ng2 != norm_guess: norm_guess = ng2
-        print(f"⚙️  掃描權重判定 norm = {norm_guess.upper()}")
+        print(f"[wm] 掃描權重判定 norm = {norm_guess.upper()}")
 
         if _combined_model is None:
             cm, _, _ = build_combined(norm=norm_guess)
             ok, msg = _strict_load_weights(cm, COMBINED_H5)
             if not ok:
-                print(f"ℹ️ combined 嚴格載入失敗：{msg} → 改 by_name")
+                print(f"[wm] combined 嚴格載入失敗：{msg} -> 改 by_name")
                 ok2, msg2 = _byname_load_weights(cm, COMBINED_H5)
                 if not ok2: raise RuntimeError(f"Combined 權重載入失敗：{msg2}")
             _combined_model = cm
-            print(f"✅ Combined 權重載入完成：{COMBINED_H5}")
+            print(f"[wm] Combined 權重載入完成：{COMBINED_H5}")
 
         if _reveal_model is None:
             rv = build_reveal_network(norm=norm_guess)
             ok, msg = _strict_load_weights(rv, REVEAL_H5)
             if not ok:
-                print(f"ℹ️ reveal 嚴格載入失敗：{msg} → 改 by_name")
+                print(f"[wm] reveal 嚴格載入失敗：{msg} -> 改 by_name")
                 ok2, msg2 = _byname_load_weights(rv, REVEAL_H5)
                 if not ok2: raise RuntimeError(f"Reveal 權重載入失敗：{msg2}")
             _reveal_model = rv
-            print(f"✅ Reveal 權重載入完成：{REVEAL_H5}")
+            print(f"[wm] Reveal 權重載入完成：{REVEAL_H5}")
 
     return _combined_model, _reveal_model
 
@@ -789,6 +791,7 @@ def build_app(static_root: Path) -> Flask:
     app = Flask(__name__)
     ensure_dir(static_root)
     latest = LatestStore(static_root)
+    init_chain(static_root / "blockchain.json")
 
     @app.after_request
     def cors(r):
@@ -849,6 +852,7 @@ def build_app(static_root: Path) -> Flask:
             "ok": True,
             "combined": Path(COMBINED_H5).exists(),
             "reveal":   Path(REVEAL_H5).exists(),
+            "blockchain": get_chain().chain_info(),
             "env": {
                 "WM_CONTAINER_MODE": os.getenv("WM_CONTAINER_MODE", "auto"),
                 "WM_PSNR_TARGET": os.getenv("WM_PSNR_TARGET", "40.0"),
@@ -943,6 +947,30 @@ def build_app(static_root: Path) -> Flask:
 
             res = run_embed_core(cover_m11, secret_m11, job_dir)
 
+            # --- 區塊鏈：對 container.png 算 SHA256，寫入新區塊，並把區塊資訊嵌入 PNG metadata ---
+            container_path = Path(res["container"])
+            container_sha256 = sha256_bytes(container_path.read_bytes())
+            bc_block = get_chain().record_embed(
+                job_id=jid,
+                image_sha256=container_sha256,
+                metadata={
+                    "psnr_final_db": res.get("psnr_final_db", ""),
+                    "mode_used":     res.get("mode_used", ""),
+                }
+            )
+            # 把區塊鏈資訊寫進 PNG text chunks（不影響像素，隨圖片一起傳遞）
+            _png_meta = PngImagePlugin.PngInfo()
+            _png_meta.add_text("wm_job_id",     jid)
+            _png_meta.add_text("wm_block_index", str(bc_block["index"]))
+            _png_meta.add_text("wm_block_hash",  bc_block["block_hash"])
+            _png_meta.add_text("wm_timestamp",   str(bc_block["timestamp"]))
+            Image.open(container_path).convert("RGB").save(container_path, pnginfo=_png_meta)
+
+            (job_dir / "blockchain_record.json").write_text(
+                json.dumps(bc_block, ensure_ascii=False, indent=2), encoding="utf-8"
+            )
+            # -----------------------------------------------------------------------
+
             pairs = [("Cover","cover.png"),("Secret (in)","secret_in.png"),
                      ("Container","container.png"),("Residual","residual.png"),
                      ("Secret (out)","secret.png")]
@@ -959,6 +987,11 @@ def build_app(static_root: Path) -> Flask:
                 "latency_ms": res["latency_ms"],
                 "mode_used": res.get("mode_used", ""),
                 "psnr_final_db": res.get("psnr_final_db", ""),
+                "blockchain": {
+                    "block_index": bc_block["index"],
+                    "block_hash":  bc_block["block_hash"],
+                    "image_sha256": container_sha256,
+                },
                 "images": {
                     "cover":     f"{base}/cover.png",
                     "container": f"{base}/container.png",
@@ -988,6 +1021,39 @@ def build_app(static_root: Path) -> Flask:
                 return jsonify({"ok": False, "error": "need image(file)"}), 400
 
             raw = f.read()
+
+            # --- 區塊鏈驗證：從 PNG metadata 讀取嵌入的區塊資訊，查鏈，不通過就拒絕 ---
+            try:
+                _tmp_img = Image.open(io.BytesIO(raw))
+                wm_job_id    = _tmp_img.info.get("wm_job_id", "").strip()
+                wm_block_hash = _tmp_img.info.get("wm_block_hash", "").strip()
+            except Exception:
+                wm_job_id = ""
+                wm_block_hash = ""
+
+            if not wm_job_id or not wm_block_hash:
+                return jsonify({
+                    "ok": False,
+                    "blockchain_verified": False,
+                    "reason": "此圖片不含浮水印區塊鏈資訊，請確認為系統產出的 container 圖片。",
+                    "detail": "no_metadata",
+                }), 403
+
+            bc_ok, bc_block, bc_reason = get_chain().verify_by_job_id(wm_job_id, wm_block_hash)
+            if not bc_ok:
+                _reason_map = {
+                    "not_registered": "此圖片的區塊鏈記錄不存在，無法還原浮水印。",
+                    "hash_mismatch":  "圖片 metadata 與區塊鏈記錄不符，可能已被竄改。",
+                }
+                return jsonify({
+                    "ok": False,
+                    "blockchain_verified": False,
+                    "reason": _reason_map.get(bc_reason, "區塊鏈驗證失敗，鏈可能已被竄改。"),
+                    "detail": bc_reason,
+                    "wm_job_id": wm_job_id,
+                }), 403
+            # -----------------------------------------------------------------------
+
             try:
                 atk_img = Image.open(io.BytesIO(raw)).convert("RGB")
                 atk_ref128 = _to_square_center_crop(atk_img).resize((128,128), LANCZOS)
@@ -1014,6 +1080,13 @@ def build_app(static_root: Path) -> Flask:
                 "ok": True, "job_id": jid, "ready": True,
                 "latency_ms": res["latency_ms"],
                 "grid": res.get("grid", str(tiles_hint)),
+                "blockchain_verified": True,
+                "blockchain": {
+                    "block_index":  bc_block["index"],
+                    "block_hash":   bc_block["block_hash"],
+                    "embed_job_id": bc_block["job_id"],
+                    "image_sha256": img_sha256,
+                },
                 "images": {
                     "tile_best":     f"{base}/tile_best.png",
                     "tile_best_src": f"{base}/tile_best_src.png",
