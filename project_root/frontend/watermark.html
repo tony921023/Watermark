@@ -19,6 +19,7 @@
         <button class="dropbtn" onclick="toggleMenu()" aria-label="展開選單">&#9776;</button>
         <div class="dropdown-content" id="dropdownMenu">
           <a href="restore.html">照出真身</a>
+          <a href="verify.html">驗證身分</a>
         </div>
       </div>
       <div class="page-hero-title-wrap">
@@ -124,8 +125,23 @@
       <div class="tool-step" style="margin-top:28px;">
         <div class="tool-step-num">3</div>
         <div class="tool-step-content">
+          <div class="tool-step-title">輸入身分驗證訊息</div>
+          <div class="tool-step-desc">此訊息將隨區塊鏈記錄保存，驗證時才會顯示</div>
+        </div>
+      </div>
+
+      <div class="action-row" style="flex-direction:column; align-items:stretch; gap:8px;">
+        <input type="text" id="identityInput" placeholder="例如：姓名、單位、用途說明…"
+          style="padding:10px 14px; border:1px solid #d1d5db; border-radius:8px; font-size:15px; width:100%; box-sizing:border-box;" />
+        <div style="font-size:12px; color:#9ca3af;">此欄位可留空，留空時驗證頁不顯示身分訊息</div>
+      </div>
+
+      <!-- 步驟 4 -->
+      <div class="tool-step" style="margin-top:28px;">
+        <div class="tool-step-num">4</div>
+        <div class="tool-step-content">
           <div class="tool-step-title">執行嵌入與區塊鏈登記</div>
-          <div class="tool-step-desc">完成後自動將 Container SHA-256 寫入本地區塊鏈</div>
+          <div class="tool-step-desc">完成後自動將 Container SHA-256 與身分訊息寫入本地區塊鏈</div>
         </div>
       </div>
 
@@ -398,6 +414,8 @@
       var fd=new FormData(); fd.append("cover", file);
       var gridVal=parseInt((document.getElementById("secretGrid")||{value:"2"}).value,10);
       _appendTilesHints(fd, gridVal);
+      var identity=(document.getElementById("identityInput")||{value:""}).value.trim();
+      if(identity) fd.append("identity", identity);
 
       var res=await fetch(WM_API_BASE+"/wm/embed",{method:"POST",body:fd,mode:"cors"});
       if(!res.ok){ var t=""; try{t=await res.text();}catch(e){} throw new Error("HTTP "+res.status+(t?": "+t.slice(0,200):"")); }

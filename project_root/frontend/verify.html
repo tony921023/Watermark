@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>驗證身分｜照妖鏡</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script defer src="main.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="wm-page">
+
+  <!-- 頁首 -->
+  <header class="page-hero">
+    <div class="page-hero-nav">
+      <div class="dropdown">
+        <button class="dropbtn" onclick="toggleMenu()" aria-label="展開選單">&#9776;</button>
+        <div class="dropdown-content" id="dropdownMenu">
+          <a href="watermark.html">施法加印</a>
+          <a href="restore.html">照出真身</a>
+        </div>
+      </div>
+      <div class="page-hero-title-wrap">
+        <span class="page-hero-badge" style="background:linear-gradient(135deg,#6366f1,#8b5cf6);">VERIFY</span>
+        <h1>驗證身分</h1>
+        <p class="page-hero-sub">區塊鏈查詢 · 身分訊息顯示 · 確認後執行還原</p>
+      </div>
+      <a href="index.html" class="mirror-home">回首頁</a>
+    </div>
+  </header>
+
+  <main class="tool-section container">
+
+    <!-- 說明卡 -->
+    <div class="info-strip">
+      <div class="info-strip-item">
+        <div class="info-strip-icon">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7v5c0 5 4 9.3 9 10.3C17 21.3 21 17 21 12V7l-9-5z" stroke="currentColor" stroke-width="1.5" opacity=".4"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div class="info-strip-label">查詢區塊鏈</div>
+          <div class="info-strip-desc">讀取 PNG metadata，比對鏈上記錄</div>
+        </div>
+      </div>
+      <div class="info-strip-item">
+        <div class="info-strip-icon">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.5" opacity=".4"/><path d="M3 21v-2a4 4 0 014-4h4a4 4 0 014 4v2" stroke="currentColor" stroke-width="1.5" opacity=".4"/><path d="M16 11l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div class="info-strip-label">顯示身分訊息</div>
+          <div class="info-strip-desc">驗證通過才會顯示嵌入時的身分資訊</div>
+        </div>
+      </div>
+      <div class="info-strip-item">
+        <div class="info-strip-icon">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity=".4"/><path d="M12 8v4l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="info-strip-label">自主決定還原</div>
+          <div class="info-strip-desc">確認身分後，選擇是否執行浮水印還原</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 操作卡 -->
+    <div class="tool-card" style="border-top:3px solid #6366f1;">
+
+      <!-- 步驟 1 -->
+      <div class="tool-step">
+        <div class="tool-step-num">1</div>
+        <div class="tool-step-content">
+          <div class="tool-step-title">上傳 Container 圖片</div>
+          <div class="tool-step-desc">請上傳由本系統「施法加印」所產生的圖片</div>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <label id="verifyUploadLabel" for="verifyFile" class="upload-as-btn">選擇圖片</label>
+      </div>
+      <input type="file" id="verifyFile" accept="image/*" class="input-file-hidden" />
+      <img id="verifyPreview" alt="預覽圖" class="image-preview" style="display:none;" />
+
+      <!-- 步驟 2 -->
+      <div class="tool-step" style="margin-top:28px;">
+        <div class="tool-step-num">2</div>
+        <div class="tool-step-content">
+          <div class="tool-step-title">查詢區塊鏈與身分訊息</div>
+          <div class="tool-step-desc">系統讀取圖片中的鏈上憑證，驗證是否由本系統產出</div>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button id="verifyBtn" type="button" class="cta-btn disabled" disabled>驗證身分</button>
+      </div>
+
+      <div id="verifySpinner" class="spinner" style="display:none;">查詢中…</div>
+
+      <!-- 驗證結果卡 -->
+      <div id="verifyResultCard" style="display:none; margin-top:20px; padding:18px 20px; border-radius:10px; border:1.5px solid #d1fae5; background:#f0fdf4;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#22c55e" opacity=".15"/><path d="M8 12l3 3 5-5" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span style="font-weight:700; color:#15803d; font-size:16px;">區塊鏈驗證通過</span>
+        </div>
+        <div id="identityDisplay" style="margin-bottom:14px; padding:12px 14px; background:#fff; border-radius:8px; border:1px solid #d1fae5;">
+          <div style="font-size:12px; color:#6b7280; margin-bottom:4px;">嵌入時的身分訊息</div>
+          <div id="identityText" style="font-size:16px; font-weight:600; color:#111827; word-break:break-all;"></div>
+        </div>
+        <div id="bcInfoDisplay" style="font-size:12px; color:#6b7280; line-height:1.8;">
+          <div>Block #<span id="bcIndex"></span></div>
+          <div>Hash：<span id="bcHash" style="font-family:monospace;"></span></div>
+          <div>Job ID：<span id="bcJobId" style="font-family:monospace;"></span></div>
+          <div>時間：<span id="bcTime"></span></div>
+        </div>
+      </div>
+
+      <!-- 驗證失敗卡 -->
+      <div id="verifyErrorCard" style="display:none; margin-top:20px; padding:18px 20px; border-radius:10px; border:1.5px solid #fee2e2; background:#fff5f5;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#ef4444" opacity=".15"/><path d="M15 9l-6 6M9 9l6 6" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/></svg>
+          <span style="font-weight:700; color:#dc2626; font-size:16px;">驗證失敗</span>
+        </div>
+        <div id="verifyErrorMsg" style="color:#7f1d1d; font-size:14px;"></div>
+      </div>
+
+      <!-- 步驟 3：確認後執行還原 -->
+      <div id="revealSection" style="display:none; margin-top:28px; padding-top:24px; border-top:1px solid #e5e7eb;">
+        <div class="tool-step">
+          <div class="tool-step-num">3</div>
+          <div class="tool-step-content">
+            <div class="tool-step-title">確認後執行浮水印還原</div>
+            <div class="tool-step-desc">選擇當時嵌入的格數，確認無誤後執行還原</div>
+          </div>
+        </div>
+
+        <div class="grid-select-wrap">
+          <label class="grid-opt">
+            <input type="radio" name="verifyGridRadio" value="2" checked>
+            <div class="grid-opt-card">
+              <div class="grid-opt-num">2×2</div>
+              <div class="grid-opt-tag quality">畫質優先</div>
+            </div>
+          </label>
+          <label class="grid-opt">
+            <input type="radio" name="verifyGridRadio" value="3">
+            <div class="grid-opt-card">
+              <div class="grid-opt-num">3×3</div>
+              <div class="grid-opt-tag balance">均衡</div>
+            </div>
+          </label>
+          <label class="grid-opt">
+            <input type="radio" name="verifyGridRadio" value="4">
+            <div class="grid-opt-card">
+              <div class="grid-opt-num">4×4</div>
+              <div class="grid-opt-tag robust">韌性優先</div>
+            </div>
+          </label>
+        </div>
+
+        <div class="action-row" style="margin-top:16px;">
+          <button id="doRevealBtn" type="button" class="cta-btn">執行浮水印還原</button>
+        </div>
+
+        <div id="revealSpinner" class="spinner" style="display:none;">還原中…</div>
+        <div id="revealResp" class="response" aria-live="polite"></div>
+      </div>
+
+    </div>
+
+    <!-- 還原結果卡 -->
+    <section id="revealResults" class="tool-card image-results" style="display:none;" aria-live="polite">
+      <h2 style="margin-top:0;">還原結果</h2>
+      <div class="result-row">
+        <div class="result-block">
+          <p class="result-label">輸入圖片</p>
+          <img id="revealInputPreview" class="zoomable" style="display:none;" alt="輸入圖片" />
+        </div>
+        <div class="result-block">
+          <p class="result-label">最佳修復（Secret）</p>
+          <img id="revealOutputImg" class="zoomable" style="display:none;" alt="還原圖片" />
+          <div style="margin-top:16px;">
+            <a id="downloadRevealResult" href="#" class="cta-btn" style="display:none;">下載修復圖片</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 上傳提醒 Modal -->
+  <div id="noticeModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="noticeTitle" style="display:none;">
+    <div class="modal-wrapper">
+      <div class="modal-card">
+        <button class="close" id="noticeClose" aria-label="關閉">×</button>
+        <h3 id="noticeTitle" class="modal-title">提醒：上傳檔案之資料處理</h3>
+        <div class="modal-body">
+          您上傳的影像可能包含個人資料（例如臉部特徵）。我們僅於本服務中處理用於修復與驗證之目的，
+          並依據本站隱私權政策與服務條款辦理。
+        </div>
+        <div class="modal-actions">
+          <button id="noticeContinue" class="cta-btn">繼續</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zoom Modal -->
+  <div id="imageModal" class="modal" role="dialog" aria-modal="true" aria-label="圖片放大檢視" style="display:none;">
+    <div class="modal-wrapper">
+      <div class="modal-card" style="max-width:860px;">
+        <button class="close" onclick="closeModal()" aria-label="關閉">×</button>
+        <img class="modal-content" id="modalImage" alt="Zoom" style="max-height:75vh;display:block;margin:0 auto;" />
+        <div class="zoom-controls" style="display:flex;justify-content:center;gap:10px;margin-top:20px;">
+          <button type="button" onclick="zoomIn()" class="cta-btn secondary">＋</button>
+          <button type="button" onclick="zoomOut()" class="cta-btn secondary">－</button>
+          <button type="button" onclick="resetZoom()" class="cta-btn secondary">原尺寸</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    var fileInput  = document.getElementById('verifyFile');
+    var uploadLbl  = document.getElementById('verifyUploadLabel');
+    var verifyBtn  = document.getElementById('verifyBtn');
+    var doRevealBtn= document.getElementById('doRevealBtn');
+    var preview    = document.getElementById('verifyPreview');
+    var _currentFile = null;
+    var _verified    = false;
+
+    /* ---- 上傳提醒 ---- */
+    var modal   = document.getElementById('noticeModal');
+    var btnOk   = document.getElementById('noticeContinue');
+    var btnX    = document.getElementById('noticeClose');
+    var openNotice  = function(){ modal.style.display='block'; modal.setAttribute('aria-hidden','false'); };
+    var closeNotice = function(){ modal.style.display='none';  modal.setAttribute('aria-hidden','true');  };
+    uploadLbl.addEventListener('click', function(e){ e.preventDefault(); openNotice(); });
+    btnOk && btnOk.addEventListener('click', function(){ closeNotice(); setTimeout(function(){ fileInput.click(); }, 0); });
+    btnX  && btnX.addEventListener('click', closeNotice);
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeNotice(); });
+
+    /* ---- 選擇檔案 ---- */
+    fileInput.addEventListener('change', function(){
+      _currentFile = fileInput.files && fileInput.files[0];
+      _verified = false;
+      hide('verifyResultCard'); hide('verifyErrorCard'); hide('revealSection'); hide('revealResults');
+      setText('revealResp', '');
+
+      if(_currentFile){
+        verifyBtn.disabled = false; verifyBtn.classList.remove('disabled');
+        var reader = new FileReader();
+        reader.onload = function(ev){ preview.src = ev.target.result; preview.style.display='block'; };
+        reader.readAsDataURL(_currentFile);
+      } else {
+        verifyBtn.disabled = true; verifyBtn.classList.add('disabled');
+        preview.src = ''; preview.style.display = 'none';
+      }
+    });
+
+    /* ---- 驗證 ---- */
+    verifyBtn.addEventListener('click', async function(){
+      if(!_currentFile) return;
+      show('verifySpinner'); hide('verifyResultCard'); hide('verifyErrorCard'); hide('revealSection');
+
+      try {
+        var fd = new FormData();
+        fd.append('image', _currentFile);
+        var res = await fetch(WM_API_BASE + '/wm/verify', { method:'POST', body:fd, mode:'cors' });
+        var data = await res.json().catch(function(){ return {}; });
+
+        if(data && data.ok && data.blockchain_verified){
+          // 驗證通過
+          var identity = data.identity || '';
+          document.getElementById('identityText').textContent = identity || '（未填寫身分訊息）';
+          document.getElementById('identityDisplay').style.display = identity ? '' : 'none';
+
+          var bc = data.blockchain || {};
+          document.getElementById('bcIndex').textContent  = bc.block_index !== undefined ? bc.block_index : '-';
+          document.getElementById('bcHash').textContent   = bc.block_hash ? bc.block_hash.slice(0,24)+'…' : '-';
+          document.getElementById('bcJobId').textContent  = bc.embed_job_id || '-';
+          var ts = bc.timestamp ? new Date(bc.timestamp * 1000).toLocaleString('zh-TW') : '-';
+          document.getElementById('bcTime').textContent   = ts;
+
+          show('verifyResultCard'); hide('verifyErrorCard');
+          show('revealSection');
+          _verified = true;
+        } else {
+          var reason = (data && data.reason) || '驗證失敗，請確認圖片是否為系統產出的 container 圖片。';
+          document.getElementById('verifyErrorMsg').textContent = reason;
+          show('verifyErrorCard'); hide('verifyResultCard'); hide('revealSection');
+          _verified = false;
+        }
+      } catch(err) {
+        document.getElementById('verifyErrorMsg').textContent = '無法連線後端（5001）：' + err.message;
+        show('verifyErrorCard'); hide('verifyResultCard'); hide('revealSection');
+        _verified = false;
+      } finally {
+        hide('verifySpinner');
+      }
+    });
+
+    /* ---- 執行還原 ---- */
+    doRevealBtn.addEventListener('click', async function(){
+      if(!_currentFile || !_verified) return;
+      doRevealBtn.disabled = true; doRevealBtn.style.opacity = '0.6';
+      show('revealSpinner'); setText('revealResp', '');
+      hide('revealResults');
+
+      try {
+        var grid = '2';
+        document.querySelectorAll('input[name="verifyGridRadio"]').forEach(function(r){
+          if(r.checked) grid = r.value;
+        });
+
+        var fd = new FormData();
+        fd.append('image', _currentFile);
+        fd.append('tiles_hint', grid);
+        fd.append('hint_grid', grid);
+
+        var res = await fetch(WM_API_BASE + '/external_reveal', { method:'POST', body:fd, mode:'cors' });
+        var data = await res.json().catch(function(){ return {}; });
+
+        if(!res.ok || !(data && data.ok)){
+          var msg = (data && data.reason) || (data && data.error) || ('HTTP ' + res.status);
+          setText('revealResp', '還原失敗：' + msg, true);
+          return;
+        }
+
+        // 顯示結果
+        var base = data.images || {};
+        var bestUrl = absoluteWMUrl(base.tile_best_256 || base.tile_best || base.reveal || '');
+        if(bestUrl){
+          var outImg = document.getElementById('revealOutputImg');
+          outImg.src = bestUrl; outImg.style.display = 'block';
+
+          var dlA = document.getElementById('downloadRevealResult');
+          dlA.href = bestUrl; dlA.style.display = 'inline-block';
+
+          // 複製預覽圖到結果區
+          var inPrev = document.getElementById('revealInputPreview');
+          inPrev.src = preview.src; inPrev.style.display = 'block';
+
+          document.getElementById('revealResults').style.display = 'block';
+          if(typeof bindZoomToNewImages === 'function') bindZoomToNewImages();
+        }
+
+        setText('revealResp', '還原完成');
+      } catch(err) {
+        setText('revealResp', '無法連線後端（5001）：' + err.message, true);
+      } finally {
+        hide('revealSpinner');
+        doRevealBtn.disabled = false; doRevealBtn.style.opacity = '';
+      }
+    });
+
+    /* ---- 工具函式 ---- */
+    function show(id){
+      var el = typeof id==='string' ? document.getElementById(id) : id;
+      if(el) el.style.display = 'block';
+    }
+    function hide(id){
+      var el = typeof id==='string' ? document.getElementById(id) : id;
+      if(el) el.style.display = 'none';
+    }
+    function setText(id, msg, isErr){
+      var el = document.getElementById(id); if(!el) return;
+      el.textContent = msg || '';
+      el.className = 'response ' + (isErr ? 'error' : (msg ? 'success' : ''));
+    }
+
+    /* ---- 格數同步 ---- */
+    document.querySelectorAll('input[name="verifyGridRadio"]').forEach(function(r){
+      r.addEventListener('change', function(){});
+    });
+
+    document.addEventListener('DOMContentLoaded', function(){
+      if(typeof bindZoomToNewImages === 'function') bindZoomToNewImages();
+    });
+  })();
+  </script>
+
+</body>
+</html>

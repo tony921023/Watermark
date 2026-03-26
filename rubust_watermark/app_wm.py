@@ -934,6 +934,7 @@ def build_app(static_root: Path) -> Flask:
             f_secret = request.files.get("secret")
             grid     = request.form.get("secret_grid") or request.form.get("hint_grid") \
                        or request.form.get("tiles_hint") or "2"
+            identity = (request.form.get("identity") or "").strip()
             if not f_cover:
                 return jsonify({"ok": False, "error": "need cover file"}), 400
 
@@ -956,6 +957,7 @@ def build_app(static_root: Path) -> Flask:
                 metadata={
                     "psnr_final_db": res.get("psnr_final_db", ""),
                     "mode_used":     res.get("mode_used", ""),
+                    "identity":      identity,
                 }
             )
             # 把區塊鏈資訊寫進 PNG text chunks（不影響像素，隨圖片一起傳遞）
@@ -1009,6 +1011,64 @@ def build_app(static_root: Path) -> Flask:
             return jsonify({"ok": False, "error": str(e)}), 500
 
     # ---- 還原 ----
+    @app.post("/wm/verify")
+    def wm_verify():
+        """只做區塊鏈驗證，不執行 reveal。回傳鏈上身分訊息供前端顯示。"""
+        try:
+            f = request.files.get("image")
+            if not f:
+                return jsonify({"ok": False, "error": "need image file"}), 400
+
+            raw = f.read()
+
+            try:
+                tmp_img = Image.open(io.BytesIO(raw))
+                wm_job_id    = tmp_img.info.get("wm_job_id", "").strip()
+                wm_block_hash = tmp_img.info.get("wm_block_hash", "").strip()
+            except Exception:
+                wm_job_id = ""
+                wm_block_hash = ""
+
+            if not wm_job_id or not wm_block_hash:
+                return jsonify({
+                    "ok": False,
+                    "blockchain_verified": False,
+                    "reason": "此圖片不含浮水印區塊鏈資訊，請確認為系統產出的 container 圖片。",
+                    "detail": "no_metadata",
+                }), 403
+
+            bc_ok, bc_block, bc_reason = get_chain().verify_by_job_id(wm_job_id, wm_block_hash)
+            if not bc_ok:
+                reason_map = {
+                    "not_registered": "此圖片的區塊鏈記錄不存在，無法驗證。",
+                    "hash_mismatch":  "圖片 metadata 與區塊鏈記錄不符，可能已被竄改。",
+                }
+                return jsonify({
+                    "ok": False,
+                    "blockchain_verified": False,
+                    "reason": reason_map.get(bc_reason, "區塊鏈驗證失敗。"),
+                    "detail": bc_reason,
+                    "wm_job_id": wm_job_id,
+                }), 403
+
+            meta = bc_block.get("metadata", {})
+            return jsonify({
+                "ok": True,
+                "blockchain_verified": True,
+                "identity": meta.get("identity", ""),
+                "blockchain": {
+                    "block_index":  bc_block["index"],
+                    "block_hash":   bc_block["block_hash"],
+                    "embed_job_id": bc_block["job_id"],
+                    "timestamp":    bc_block["timestamp"],
+                    "image_sha256": bc_block["image_sha256"],
+                    "psnr_final_db": meta.get("psnr_final_db", ""),
+                    "mode_used":     meta.get("mode_used", ""),
+                },
+            })
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
+
     @app.post("/external_reveal")
     def external_reveal():
         try:
