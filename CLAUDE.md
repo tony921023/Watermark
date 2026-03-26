@@ -62,9 +62,10 @@ python robust_watermark.py external_reveal --reveal_h5 <h5> --attack_img <img>
 
 | 頁面 | 說明 |
 |---|---|
-| `index.html` | 首頁（Hero、運作原理、鑑識報告入口） |
-| `watermark.html` | 施法加印（嵌入浮水印） |
-| `restore.html` | 照出真身（還原浮水印） |
+| `index.html` | 首頁（Hero、CTA 三張卡片、運作原理） |
+| `watermark.html` | 施法加印（嵌入浮水印 + 身分訊息輸入） |
+| `restore.html` | 照出真身（區塊鏈驗證 → 浮水印還原） |
+| `verify.html` | 驗證身分（查鏈顯示身分訊息 → 確認後還原） |
 
 共用資源：`main.js`（全域工具函式 + API 位址設定）、`style.css`（所有樣式集中於此，勿在頁面內寫 `<style>`）。
 
@@ -107,7 +108,8 @@ C:\Users\admin\Desktop\114屆照妖鏡\rubust_matermark\weights\reveal_network.h
 |---|---|---|
 | `GET` | `/` | 服務根目錄（ping） |
 | `GET` | `/health` | 服務健康狀態 + 權重是否存在 + 區塊鏈資訊 |
-| `POST` | `/wm/embed` | 嵌入浮水印（multipart：`cover`、可選 `secret`） |
+| `POST` | `/wm/embed` | 嵌入浮水印（multipart：`cover`、可選 `secret`、可選 `identity`） |
+| `POST` | `/wm/verify` | 僅做區塊鏈驗證，回傳身分訊息（multipart：`image`） |
 | `POST` | `/external_reveal` | 從受攻擊影像還原浮水印（multipart：`image`／`attack`、可選 `mask`） |
 | `GET` | `/files/<job>/<name>` | 取得工作產物檔案 |
 | `GET` | `/open/image/<job>/<name>` | 瀏覽器直接顯示影像 |
