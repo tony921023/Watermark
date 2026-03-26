@@ -703,6 +703,21 @@ function _getRevealGridHint(){
   return [2,3,4].includes(n) ? n : null; // null = Auto
 }
 
+/* === 區塊鏈驗證卡片輔助 === */
+function _bcCard(state, title, detail){
+  const card  = $("bcVerifyCard");
+  const tEl   = $("bcVerifyTitle");
+  const dEl   = $("bcVerifyDetail");
+  if(!card) return;
+  card.className = "bc-verify-card " + state;   // bc-checking | bc-ok | bc-fail
+  if(tEl) tEl.textContent = title;
+  if(dEl) dEl.textContent = detail || "";
+}
+function _bcCardHide(){
+  const card = $("bcVerifyCard");
+  if(card){ card.className = "bc-verify-card"; card.style.display = "none"; }
+}
+
 /* ===================== 破譯真真（5001） ===================== */
 async function runReveal(){
   const attack = $("attackFile")?.files?.[0];
@@ -720,6 +735,7 @@ async function runReveal(){
 
   showSpinner("wmRevealSpinner","處理中…");
   displayResponse("wmRevealResp","");
+  _bcCard("bc-checking", "區塊鏈驗證中…", "正在確認此圖片是否已在區塊鏈中登記");
 
   try{
     const fd = new FormData();
@@ -733,12 +749,33 @@ async function runReveal(){
 
     const resp = await fetch(`${WM_API_BASE}/external_reveal`, { method:"POST", body:fd, mode:"cors" });
 
+    // 區塊鏈驗證失敗（403）
+    if(resp.status === 403){
+      let errData = {}; try{ errData = await resp.json(); }catch(_){}
+      const detail = errData.detail || "";
+      const sha = errData.image_sha256 ? `\nSHA-256：${errData.image_sha256}` : "";
+      if(detail === "not_registered"){
+        _bcCard("bc-fail",
+          "區塊鏈驗證失敗：此圖片未登記",
+          "此圖片的 SHA-256 雜湊值未在區塊鏈中找到記錄。\n請確認您上傳的是由本系統「施法加印」所產生的 container 圖片，而非原始或其他來源的圖片。" + sha
+        );
+      } else {
+        _bcCard("bc-fail",
+          "區塊鏈驗證失敗：鏈已被竄改",
+          "區塊鏈完整性校驗未通過，資料可能遭到篡改。\n詳細原因：" + (detail || "unknown") + sha
+        );
+      }
+      hideSpinner("wmRevealSpinner");
+      return;
+    }
+
     if(!resp.ok){
       let t=""; try{ t=await resp.text(); }catch(_){}
       const msg = `HTTP ${resp.status}${t?`: ${t.substring(0,200)}`:""}`;
       const hint = (location.protocol==="https:" && WM_API_BASE.startsWith("http://"))
         ? "無法連線 Watermark 後端（5001）。（HTTPS↔HTTP 混合內容被瀏覽器擋下）"
         : "無法連線 Watermark 後端（5001）。";
+      _bcCardHide();
       displayResponse("wmRevealResp",`${hint} 詳細：${msg}`,true);
       return;
     }
@@ -750,8 +787,21 @@ async function runReveal(){
       const backendMsg = data?.error || "解碼失敗";
       const detail = data?.stderr || data?.stdout || "";
       const tail = detail ? `｜stderr: ${String(detail).slice(-200)}` : "";
+      _bcCardHide();
       displayResponse("wmRevealResp", `Watermark 後端回報錯誤（5001）。${backendMsg}${tail}`, true);
       return;
+    }
+
+    // 區塊鏈驗證通過
+    if(data.blockchain_verified && data.blockchain){
+      const bc = data.blockchain;
+      _bcCard("bc-ok",
+        "區塊鏈驗證通過",
+        `區塊索引：#${bc.block_index}　SHA-256：${(bc.image_sha256||"").slice(0,16)}…\n` +
+        `區塊雜湊：${(bc.block_hash||"").slice(0,24)}…　原始嵌入工作：${bc.embed_job_id||""}`
+      );
+    } else {
+      _bcCardHide();
     }
 
     // 正規化欄位

@@ -12,17 +12,28 @@
 </head>
 
 <body>
+  <!-- 導覽列 -->
   <nav>
     <a href="/" class="nav-logo">照妖鏡</a>
     <div class="nav-links">
       <a href="watermark.html">施法加印</a>
       <a href="restore.html">照出真身</a>
+      <a href="#how-it-works">運作原理</a>
       <a href="#reports">鑑識報告</a>
     </div>
     <button class="menu-toggle" aria-label="開啟選單">&#9776;</button>
   </nav>
 
+  <!-- Hero -->
   <header class="hero">
+    <div class="hero-text">
+      <div class="hero-badge">Deepfake Defense System</div>
+      <p class="hero-sub">以強韌浮水印與區塊鏈驗證，守護影像真實性</p>
+      <div class="hero-cta-row">
+        <a href="watermark.html" class="cta-btn">開始施法加印</a>
+        <a href="restore.html" class="cta-btn secondary">照出真身</a>
+      </div>
+    </div>
     <div class="hero-video-wrap">
       <video autoplay muted loop playsinline>
         <source src="網頁動畫.mp4" type="video/mp4">
@@ -31,73 +42,217 @@
     </div>
   </header>
 
-  <section class="cta-wrap">
-    <div class="container">
-      <div class="cta-grid-duo">
-        <article class="cta-card anchor-target">
-          <div class="cta-card-badge">EMBED</div>
-          <h3>施法加印</h3>
-          <p class="cta-card-sub">防護 · 嵌入</p>
-          <img class="card-thumb smart-img"
-               data-srcs="../watermark.png,watermark.png,/watermark.png"
-               alt="施法加印示意" loading="lazy">
-          <p>影像「對外分享前」先嵌入可驗證資訊，支援強韌浮水印與格數自選，方便後續追溯與修復。</p>
-          <a class="cta-btn" href="watermark.html">開始施法加印</a>
-        </article>
-
-        <article class="cta-card anchor-target">
-          <div class="cta-card-badge">REVEAL</div>
-          <h3>照出真身</h3>
-          <p class="cta-card-sub">修復 · 還原</p>
-          <img class="card-thumb smart-img"
-               data-srcs="../restore.png,restore.png,/restore.png"
-               alt="照出真身示意" loading="lazy">
-          <p>對已加印影像揭回 Secret，亮度校正與超解析強化，生成可判讀的高品質修復圖。</p>
-          <a class="cta-btn" href="restore.html">開始照出真身</a>
-        </article>
+  <!-- 統計列 -->
+  <section class="stats-bar">
+    <div class="container stats-inner">
+      <div class="stat-item">
+        <span class="stat-num">SHA-256</span>
+        <span class="stat-label">圖像雜湊驗證</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num">40+ dB</span>
+        <span class="stat-label">浮水印 PSNR 品質</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num">區塊鏈</span>
+        <span class="stat-label">不可竄改登記</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-num">2×～4×</span>
+        <span class="stat-label">彈性拼貼格數</span>
       </div>
     </div>
   </section>
 
+  <!-- CTA 雙卡片 -->
+  <section class="cta-wrap">
+    <div class="container">
+      <div class="cta-grid-duo">
+
+        <article class="cta-card anchor-target" data-accent="cyan">
+          <div class="cta-card-accent cyan"></div>
+          <div class="cta-card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="2" opacity=".25"/>
+              <path d="M16 24h16M24 16v16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+              <circle cx="24" cy="24" r="6" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
+          <h3>施法加印</h3>
+          <p class="cta-card-sub">防護 · 嵌入 · 區塊鏈登記</p>
+          <img class="card-thumb smart-img"
+               data-srcs="../watermark.png,watermark.png,/watermark.png"
+               alt="施法加印示意" loading="lazy">
+          <p>影像對外分享前，先嵌入可驗證的強韌浮水印，並自動在區塊鏈中登記 SHA-256 指紋，確保來源可追溯。</p>
+          <a class="cta-btn" href="watermark.html">開始施法加印</a>
+        </article>
+
+        <article class="cta-card anchor-target" data-accent="purple">
+          <div class="cta-card-accent purple"></div>
+          <div class="cta-card-icon">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="24" cy="24" r="22" stroke="currentColor" stroke-width="2" opacity=".25"/>
+              <path d="M16 32l8-8 8 8M24 24V16" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <h3>照出真身</h3>
+          <p class="cta-card-sub">修復 · 還原 · 區塊鏈驗證</p>
+          <img class="card-thumb smart-img"
+               data-srcs="../restore.png,restore.png,/restore.png"
+               alt="照出真身示意" loading="lazy">
+          <p>上傳 container 圖片，系統先通過區塊鏈驗證，再揭回 Secret，支援格數自動偵測與超解析強化。
+            
+          </p>
+          <a class="cta-btn" href="restore.html">開始照出真身</a>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 運作原理 -->
+  <section id="how-it-works" class="how-wrap anchor-target">
+    <div class="container">
+      <h2 class="section-title">運作原理</h2>
+      <div class="how-steps">
+
+        <div class="how-step fade-in">
+          <div class="how-step-num">01</div>
+          <div class="how-step-body">
+            <h3>上傳原始影像</h3>
+            <p>選擇要保護的 Cover 圖片，系統支援 PNG / JPG，自動調整至模型輸入尺寸。</p>
+          </div>
+        </div>
+
+        <div class="how-connector"></div>
+
+        <div class="how-step fade-in">
+          <div class="how-step-num">02</div>
+          <div class="how-step-body">
+            <h3>強韌浮水印嵌入</h3>
+            <p>Encoder-Noise-Decoder 架構將 Secret 資訊以殘差方式嵌入，PSNR &gt; 40 dB，視覺上幾乎無差異。</p>
+          </div>
+        </div>
+
+        <div class="how-connector"></div>
+
+        <div class="how-step fade-in">
+          <div class="how-step-num">03</div>
+          <div class="how-step-body">
+            <h3>區塊鏈指紋登記</h3>
+            <p>Container 圖片的 SHA-256 雜湊值自動寫入本地區塊鏈，與前一區塊串鏈，不可竄改。</p>
+          </div>
+        </div>
+
+        <div class="how-connector"></div>
+
+        <div class="how-step fade-in">
+          <div class="how-step-num">04</div>
+          <div class="how-step-body">
+            <h3>驗證並還原</h3>
+            <p>上傳圖片時先查鏈驗證 SHA-256，通過後以 Reveal Network 解碼，輸出高品質修復圖。</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 區塊鏈特色 -->
+  <section class="blockchain-feature-wrap">
+    <div class="container blockchain-feature-inner">
+      <div class="blockchain-feature-text fade-in">
+        <div class="section-eyebrow">區塊鏈整合</div>
+        <h2>每一張圖片都有不可竄改的數位身份</h2>
+        <p>嵌入浮水印的同時，系統自動計算 Container 圖片的 SHA-256 雜湊，寫入本地區塊鏈並串接前一區塊的哈希，形成完整鏈條。還原時對上傳圖片做同樣計算，若未登記或鏈完整性校驗失敗，系統直接拒絕—無法偽造、無法跳過。</p>
+        <ul class="blockchain-feature-list">
+          <li>SHA-256 圖像指紋，精確至位元組</li>
+          <li>鏈式雜湊，任意竄改立即被偵測</li>
+          <li>驗證前置，通過才顯示還原結果</li>
+          <li>JSON sidecar 儲存，不影響圖片像素</li>
+        </ul>
+      </div>
+      <div class="blockchain-feature-visual fade-in">
+        <div class="bc-chain-demo">
+          <div class="bc-block genesis">
+            <div class="bc-block-label">Genesis</div>
+            <div class="bc-block-hash">0000…0000</div>
+          </div>
+          <div class="bc-arrow">&#8595;</div>
+          <div class="bc-block">
+            <div class="bc-block-label">Block #0</div>
+            <div class="bc-block-hash">ab6e…ccbd</div>
+            <div class="bc-block-meta">embed job ✓</div>
+          </div>
+          <div class="bc-arrow">&#8595;</div>
+          <div class="bc-block active">
+            <div class="bc-block-label">Block #1</div>
+            <div class="bc-block-hash">2235…485c</div>
+            <div class="bc-block-meta">embed job ✓</div>
+          </div>
+          <div class="bc-arrow">&#8595;</div>
+          <div class="bc-block ghost">
+            <div class="bc-block-label">Block #N</div>
+            <div class="bc-block-hash">…</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 核心功能 -->
   <main>
     <section id="features" class="content-section container anchor-target">
       <h2 class="section-title">系統核心功能</h2>
-
       <div class="feature-grid">
-        <div class="feature-summary">
-          <h3>功能概述</h3>
-          <p>「照妖鏡」以「防護（施法加印）→ 修復（照出真身）」雙段式流程，滿足來源溯源、浮水印嵌入與證據修復需求。</p>
+
+        <div class="feature-summary fade-in">
+          <div class="feature-icon">
+            <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="#00c6ff" stroke-width="1.5" opacity=".4"/><path d="M10 16l4 4 8-8" stroke="#00c6ff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>強韌浮水印</h3>
+          <p>END（Encoder-Noise-Decoder）設計，訓練時模擬壓縮、模糊、隨機雜訊等攻擊，確保浮水印在各種影像處理後仍可還原。</p>
         </div>
 
-        <div class="feature-summary">
-          <h3>方法與技術</h3>
-          <ul>
-            <li><strong>強韌浮水印（END）：</strong>Encoder–Noise–Decoder 設計，考慮壓縮與失真。</li>
-            <li><strong>修復流程：</strong>區塊化揭回、亮度／色彩校正，可選超解析強化。</li>
-            <li><strong>格數自選：</strong>2×2、3×3、4×4 拼貼，平衡畫質與韌性。</li>
-          </ul>
+        <div class="feature-summary fade-in">
+          <div class="feature-icon">
+            <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="#7b2fff" stroke-width="1.5" opacity=".4"/><rect x="10" y="10" width="12" height="12" rx="2" stroke="#7b2fff" stroke-width="1.8"/><path d="M13 16h6M16 13v6" stroke="#7b2fff" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </div>
+          <h3>格數自選嵌入</h3>
+          <p>支援 2×2、3×3、4×4 拼貼格式，格數越多韌性越強，系統還原時自動偵測最佳格數，無需手動調整。</p>
         </div>
+
+        <div class="feature-summary fade-in">
+          <div class="feature-icon">
+            <svg viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="14" stroke="#4ade80" stroke-width="1.5" opacity=".4"/><path d="M12 16l3 3 5-6" stroke="#4ade80" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 8v4M16 20v4M8 16h4M20 16h4" stroke="#4ade80" stroke-width="1.2" stroke-linecap="round" opacity=".5"/></svg>
+          </div>
+          <h3>取證報告輸出</h3>
+          <p>每次嵌入與還原自動產生 HTML 報告、SHA-256 校驗清單、稽核 JSONL 紀錄，並支援 ZIP 打包下載，適合法庭舉證。</p>
+        </div>
+
       </div>
     </section>
   </main>
 
+  <!-- 鑑識報告 -->
   <section id="reports" class="reports-wrap anchor-target">
     <div class="container">
       <h2 class="section-title">鑑識報告</h2>
       <div class="reports-grid">
-
-        <article class="report-card">
-          <h3>27037 報告</h3>
-          <div class="report-meta">嵌入 / 揭回流程 + 環境與稽核</div>
-          <p>完整記錄從嵌入到揭回的流程影像、系統環境與稽核紀錄，適合稽核與重現。</p>
+        <article class="report-card fade-in">
+          <div class="report-meta">27037 Report</div>
+          <h3>嵌入 / 揭回完整報告</h3>
+          <p>記錄從嵌入到揭回的完整流程影像、環境資訊與稽核紀錄，適合稽核與重現驗證。</p>
           <ul>
-            <li><strong>環境版本：</strong>Python 3.10.11、TensorFlow 2.15.1、Real-ESRGAN（x2plus 型號與路徑）。</li>
-            <li><strong>稽核紀錄：</strong>PSNR = 41.16 dB；模式 <code>auto → residual</code>、<code>refine_reveal</code>（含時間戳）。</li>
-            <li><strong>流程影像：</strong>Cover、Secret (in/out)、Container、Residual 等對照組圖。</li>
-            <li><strong>產物下載：</strong>ZIP 打包、<code>manifest.json</code>、<code>sha256sums.txt</code> 等可驗證檔。</li>
+            <li><strong>環境版本：</strong>Python 3.10、TensorFlow 2.15、Real-ESRGAN（x2plus）</li>
+            <li><strong>稽核紀錄：</strong>PSNR = 41.16 dB；模式 <code>auto → residual</code> + <code>refine_reveal</code></li>
+            <li><strong>流程影像：</strong>Cover、Secret (in/out)、Container、Residual 對照組</li>
+            <li><strong>產物下載：</strong>ZIP 打包、<code>manifest.json</code>、<code>sha256sums.txt</code></li>
           </ul>
         </article>
-
       </div>
     </div>
   </section>
@@ -105,6 +260,7 @@
   <button id="backToTop" class="back-top" aria-label="回到頁首">↑</button>
 
   <script>
+    // 圖片回退
     (function(){
       function tryLoad(img, urls){
         if(!urls.length){ img.style.display='none'; return; }
@@ -121,6 +277,7 @@
     })();
 
     document.addEventListener('DOMContentLoaded', function(){
+      // 回頂
       const backTop = document.getElementById('backToTop');
       function onScroll(){
         const show = window.scrollY > 400;
@@ -131,14 +288,18 @@
       onScroll();
       backTop.addEventListener('click', ()=>window.scrollTo({top:0,behavior:'smooth'}));
 
-      // Mobile hamburger
+      // 漢堡
       const menuBtn = document.querySelector('.menu-toggle');
       const navLinks = document.querySelector('.nav-links');
       if(menuBtn && navLinks){
-        menuBtn.addEventListener('click', ()=>{
-          navLinks.classList.toggle('open');
-        });
+        menuBtn.addEventListener('click', ()=>{ navLinks.classList.toggle('open'); });
       }
+
+      // 捲動淡入
+      const io = new IntersectionObserver(entries=>{
+        entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); } });
+      }, { threshold: 0.12 });
+      document.querySelectorAll('.fade-in').forEach(el=>io.observe(el));
     });
   </script>
 </body>

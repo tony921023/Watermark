@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>照出真身｜照妖鏡</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <script defer src="main.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,6 +12,7 @@
 </head>
 
 <body class="wm-page">
+
   <!-- 頁首 -->
   <header class="page-hero">
     <div class="page-hero-nav">
@@ -22,38 +22,152 @@
           <a href="watermark.html">施法加印</a>
         </div>
       </div>
-      <h1>照出真身（修復）</h1>
+      <div class="page-hero-title-wrap">
+        <span class="page-hero-badge reveal-badge">REVEAL</span>
+        <h1>照出真身</h1>
+        <p class="page-hero-sub">區塊鏈驗證 · 浮水印還原 · 高品質修復</p>
+      </div>
       <a href="index.html" class="mirror-home">回首頁</a>
     </div>
   </header>
 
   <main class="tool-section container">
-    <div class="tool-card">
-      <h2>上傳 attack 圖片，系統將取回 Secret 並進行修復</h2>
-      <p>
-        解碼器會偵測當時嵌入的格數（2×2／3×3／4×4），在通道雜訊與壓縮模擬的條件下，
-        輸出 <b>最佳修復版本</b> 與對應資訊。
-      </p>
 
-      <div style="display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:8px;">
-        <label for="revealGridHint">我當時嵌入的是：</label>
-        <select id="revealGridHint" aria-label="嵌入格數">
-          <option value="2">2×2（4 塊）</option>
+    <!-- 說明卡 -->
+    <div class="info-strip">
+      <div class="info-strip-item">
+        <div class="info-strip-icon">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7v5c0 5 4 9.3 9 10.3C17 21.3 21 17 21 12V7l-9-5z" stroke="currentColor" stroke-width="1.5" opacity=".4"/><path d="M9 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div class="info-strip-label">區塊鏈前置驗證</div>
+          <div class="info-strip-desc">SHA-256 查鏈，不通過即拒絕</div>
+        </div>
+      </div>
+      <div class="info-strip-item">
+        <div class="info-strip-icon">
+          <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="1.5" opacity=".4"/><path d="M12 8v4l3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="info-strip-label">格數自動偵測</div>
+          <div class="info-strip-desc">2×2 / 3×3 / 4×4 智能選擇</div>
+        </div>
+      </div>
+      <div class="info-strip-item">
+        <div class="info-strip-icon">
+          <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.5" opacity=".4"/><path d="M8 12h8M12 8v8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="info-strip-label">超解析強化</div>
+          <div class="info-strip-desc">Real-ESRGAN 放大最佳畫格</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 操作卡 -->
+    <div class="tool-card tool-card-accent-reveal">
+
+      <!-- 流程說明 -->
+      <div class="reveal-flow">
+        <div class="reveal-flow-step active">
+          <div class="reveal-flow-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 016 6v1h1a1 1 0 110 2h-1v1a6 6 0 01-12 0v-1H3a1 1 0 110-2h1V8a6 6 0 016-6z"/></svg>
+          </div>
+          上傳圖片
+        </div>
+        <div class="reveal-flow-arrow">&#8594;</div>
+        <div class="reveal-flow-step">
+          <div class="reveal-flow-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.649 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.35-.166-2.001A11.954 11.954 0 0110 1.944zM11 14a1 1 0 11-2 0 1 1 0 012 0zm0-7a1 1 0 10-2 0v3a1 1 0 102 0V7z" clip-rule="evenodd"/></svg>
+          </div>
+          區塊鏈驗證
+        </div>
+        <div class="reveal-flow-arrow">&#8594;</div>
+        <div class="reveal-flow-step">
+          <div class="reveal-flow-icon">
+            <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/><path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/></svg>
+          </div>
+          還原結果
+        </div>
+      </div>
+
+      <!-- 步驟 1 -->
+      <div class="tool-step">
+        <div class="tool-step-num">1</div>
+        <div class="tool-step-content">
+          <div class="tool-step-title">上傳 Container 圖片</div>
+          <div class="tool-step-desc">請上傳由本系統「施法加印」所產生的圖片</div>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <label id="uploadLabel2" for="attackFile" class="upload-as-btn">選擇圖片</label>
+      </div>
+      <input type="file" id="attackFile" accept="image/*" class="input-file-hidden" aria-label="選擇要照出的圖片">
+      <img id="originalImage2" alt="預覽圖" class="image-preview zoomable" style="display:none;" />
+
+      <!-- 步驟 2 -->
+      <div class="tool-step" style="margin-top:28px;">
+        <div class="tool-step-num">2</div>
+        <div class="tool-step-content">
+          <div class="tool-step-title">選擇當時嵌入的格數</div>
+          <div class="tool-step-desc">若不確定可選任意格數，系統會自動偵測最佳結果</div>
+        </div>
+      </div>
+
+      <div class="grid-select-wrap">
+        <label class="grid-opt">
+          <input type="radio" name="revealGridRadio" value="2" checked>
+          <div class="grid-opt-card">
+            <div class="grid-opt-num">2×2</div>
+            <div class="grid-opt-tag quality">畫質優先</div>
+          </div>
+        </label>
+        <label class="grid-opt">
+          <input type="radio" name="revealGridRadio" value="3">
+          <div class="grid-opt-card">
+            <div class="grid-opt-num">3×3</div>
+            <div class="grid-opt-tag balance">均衡</div>
+          </div>
+        </label>
+        <label class="grid-opt">
+          <input type="radio" name="revealGridRadio" value="4">
+          <div class="grid-opt-card">
+            <div class="grid-opt-num">4×4</div>
+            <div class="grid-opt-tag robust">韌性優先</div>
+          </div>
+        </label>
+        <!-- 隱藏 select 供原有 JS 讀取 -->
+        <select id="revealGridHint" style="display:none;" aria-hidden="true">
+          <option value="2" selected>2×2（4 塊）</option>
           <option value="3">3×3（9 塊）</option>
           <option value="4">4×4（16 塊）</option>
         </select>
       </div>
 
+      <!-- 步驟 3 -->
+      <div class="tool-step" style="margin-top:28px;">
+        <div class="tool-step-num">3</div>
+        <div class="tool-step-content">
+          <div class="tool-step-title">執行區塊鏈驗證與還原</div>
+          <div class="tool-step-desc">系統先查鏈驗證，通過後才進行 Secret 還原</div>
+        </div>
+      </div>
+
       <div class="action-row">
-        <label id="uploadLabel2" for="attackFile" class="upload-as-btn">選擇圖片</label>
         <button id="revealBtn" type="button" class="cta-btn disabled" disabled aria-busy="false">
           執行照出真身
         </button>
       </div>
 
-      <input type="file" id="attackFile" accept="image/*" class="input-file-hidden" aria-label="選擇要照出的圖片">
-
-      <img id="originalImage2" alt="預覽圖" class="image-preview zoomable" style="display:none;" />
+      <!-- 區塊鏈驗證狀態卡片 -->
+      <div id="bcVerifyCard" class="bc-verify-card" aria-live="polite">
+        <div class="bc-verify-title">
+          <span class="bc-dot"></span>
+          <span id="bcVerifyTitle">區塊鏈驗證中…</span>
+        </div>
+        <div id="bcVerifyDetail" class="bc-verify-detail"></div>
+      </div>
 
       <div id="wmRevealSpinner" class="spinner" role="status" aria-live="polite">處理中…</div>
       <div id="wmRevealResp" class="response" aria-live="polite"></div>
@@ -61,14 +175,14 @@
 
     <!-- 結果 -->
     <section id="imageResults2" class="tool-card image-results" style="display:none;" aria-live="polite" aria-label="照出結果">
-      <h2 style="margin-top:0;">處理結果</h2>
+      <h2 style="margin-top:0;">還原結果</h2>
       <div class="result-row">
         <div class="result-block">
-          <p>輸入圖片</p>
+          <p class="result-label">輸入圖片</p>
           <img id="originalImage2_dup" class="zoomable" style="display:none;" alt="輸入圖片">
         </div>
         <div class="result-block">
-          <p>最佳修復</p>
+          <p class="result-label">最佳修復（Secret）</p>
           <img id="imgRevealOnly" class="zoomable" style="display:none;" alt="還原後圖片">
           <div style="margin-top:20px;">
             <a id="downloadBestReveal" href="#" class="cta-btn" style="display:none;">下載修復圖片</a>
@@ -76,6 +190,7 @@
         </div>
       </div>
     </section>
+
   </main>
 
   <iframe id="dl_iframe" name="dl_iframe" style="display:none;width:0;height:0;border:0;"></iframe>
@@ -112,7 +227,7 @@
     </div>
   </div>
 
-  <!-- 啟用按鈕 + 預覽圖顯示／清除結果 -->
+  <!-- 啟用按鈕 + 預覽圖顯示 -->
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       var file = document.getElementById('attackFile');
@@ -121,63 +236,36 @@
 
       file.addEventListener('change', function () {
         var hasFile = file.files && file.files[0];
+        if (hasFile) { btn.disabled = false; btn.classList.remove('disabled'); }
+        else         { btn.disabled = true;  btn.classList.add('disabled'); }
 
-        // 按鈕啟用 / 停用
-        if (hasFile) {
-          btn.disabled = false;
-          btn.classList.remove('disabled');
-        } else {
-          btn.disabled = true;
-          btn.classList.add('disabled');
-        }
-
-        // 預覽圖：選檔就顯示，沒檔就收起來
         var preview = document.getElementById('originalImage2');
         if (hasFile && preview) {
           var reader = new FileReader();
-          reader.onload = function (ev) {
-            preview.src = ev.target.result;
-            preview.style.display = 'block';
-          };
+          reader.onload = function (ev) { preview.src = ev.target.result; preview.style.display = 'block'; };
           reader.readAsDataURL(file.files[0]);
-        } else if (preview) {
-          preview.style.display = 'none';
-          preview.src = '';
-        }
+        } else if (preview) { preview.style.display = 'none'; preview.src = ''; }
 
-        // 清掉上一次的結果
         var resSec = document.getElementById('imageResults2');
         var inDup  = document.getElementById('originalImage2_dup');
         var outImg = document.getElementById('imgRevealOnly');
         var dlA    = document.getElementById('downloadBestReveal');
-
         if (resSec) resSec.style.display = 'none';
         if (inDup)  { inDup.src = '';  inDup.style.display  = 'none'; }
         if (outImg) { outImg.src = ''; outImg.style.display = 'none'; }
-        if (dlA) {
-          dlA.style.display = 'none';
-          dlA.removeAttribute('href');
-          dlA.removeAttribute('download');
-        }
+        if (dlA)    { dlA.style.display = 'none'; dlA.removeAttribute('href'); dlA.removeAttribute('download'); }
       });
 
-      // 結果圖載入完成後：顯示結果區、收起預覽圖、補上輸入圖
       var resultImg = document.getElementById('imgRevealOnly');
       if (resultImg) {
         resultImg.addEventListener('load', function () {
-          if (!resultImg.src) return; // 被清空時不要動作
-
+          if (!resultImg.src) return;
           var resSec = document.getElementById('imageResults2');
           if (resSec) resSec.style.display = 'block';
-
           var preview = document.getElementById('originalImage2');
           if (preview) preview.style.display = 'none';
-
           var inDup = document.getElementById('originalImage2_dup');
-          if (inDup && preview && preview.src) {
-            inDup.src = preview.src;
-            inDup.style.display = 'block';
-          }
+          if (inDup && preview && preview.src) { inDup.src = preview.src; inDup.style.display = 'block'; }
         });
       }
     });
@@ -189,8 +277,7 @@
       function apiBase(){
         var host=(location.hostname||"127.0.0.1");
         var proto=(location.protocol==="https:")?"https":"http";
-        return (host==="localhost"||host==="127.0.0.1") ? (proto+"://127.0.0.1:5001")
-                                                       : (proto+"://"+host+":5001");
+        return (host==="localhost"||host==="127.0.0.1") ? (proto+"://127.0.0.1:5001") : (proto+"://"+host+":5001");
       }
       function ensureAbs(url){
         if(!url) return url;
@@ -201,9 +288,7 @@
         return url;
       }
       function toDL(url){
-        url=ensureAbs(url||"");
-        if(!url) return url;
-        if(/^data:/i.test(url)) return url;
+        url=ensureAbs(url||""); if(!url) return url; if(/^data:/i.test(url)) return url;
         var m1=url.match(/\/open\/image\/([^/]+)\/([^/]+\.[a-z0-9]+)$/i);
         if(m1) return apiBase()+"/dl/image/"+encodeURIComponent(m1[1])+"/"+encodeURIComponent(m1[2]);
         var m2=url.match(/\/files\/([^/]+)\/([^/]+\.[a-z0-9]+)$/i);
@@ -213,30 +298,21 @@
       function getRevealURL(){
         var a=document.getElementById("downloadBestReveal");
         var src=a && a.getAttribute("href");
-        if(!src || src==="#"){
-          var img=document.getElementById("imgRevealOnly");
-          if(img && img.src) src=img.src;
-        }
+        if(!src || src==="#"){ var img=document.getElementById("imgRevealOnly"); if(img && img.src) src=img.src; }
         return src||"";
       }
       function downloadViaIframe(url){
-        var f=document.getElementById("dl_iframe");
-        if(!f) return;
-        var u=url + (url.indexOf("?")>-1?"&":"?") + "t=" + Date.now();
-        f.src=u;
+        var f=document.getElementById("dl_iframe"); if(!f) return;
+        f.src=url + (url.indexOf("?")>-1?"&":"?") + "t=" + Date.now();
       }
       document.addEventListener("click", function(ev){
-        var a = ev.target.closest("#downloadBestReveal");
-        if(!a) return;
+        var a = ev.target.closest("#downloadBestReveal"); if(!a) return;
         ev.preventDefault();
-        var raw=getRevealURL();
-        if(!raw) return;
+        var raw=getRevealURL(); if(!raw) return;
         var url=toDL(raw);
         if(/^data:/i.test(url)){
-          var tmp=document.createElement("a");
-          tmp.href=url; tmp.download=a.getAttribute("download")||("reveal_"+Date.now()+".png");
-          document.body.appendChild(tmp); tmp.click(); tmp.remove();
-          return;
+          var tmp=document.createElement("a"); tmp.href=url; tmp.download=a.getAttribute("download")||("reveal_"+Date.now()+".png");
+          document.body.appendChild(tmp); tmp.click(); tmp.remove(); return;
         }
         downloadViaIframe(url);
       }, {capture:true});
@@ -264,10 +340,16 @@
   </script>
 
   <script>
-    // zoom 與 toggleMenu 由 main.js 提供，此處初始化
-    document.addEventListener('DOMContentLoaded', function(){
-      bindZoomToNewImages();
+    document.querySelectorAll('input[name="revealGridRadio"]').forEach(function(r){
+      r.addEventListener('change', function(){
+        var sel = document.getElementById('revealGridHint');
+        if(sel) sel.value = r.value;
+      });
     });
+  </script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){ bindZoomToNewImages(); });
   </script>
 </body>
 </html>

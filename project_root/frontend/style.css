@@ -93,7 +93,7 @@ nav.nav-solid {
   text-decoration: none;
   color: var(--text-sub);
   font-weight: 500;
-  font-size: 15px;
+  font-size: calc(15px + var(--fs-bump));
   padding: 7px 18px;
   border-radius: var(--radius-btn);
   transition: all 0.25s ease;
@@ -122,10 +122,11 @@ nav.nav-solid {
    ================================================================ */
 .hero {
   width: 100%;
-  padding: 48px 24px 32px;
+  padding: 56px 24px 48px;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  gap: 48px;
 }
 .hero-video-wrap {
   position: relative;
@@ -149,11 +150,513 @@ nav.nav-solid {
   inset: 0;
   background: linear-gradient(
     to bottom,
-    rgba(8, 3, 17, 0.45),
-    rgba(8, 3, 17, 0.45)
+    rgba(8, 3, 17, 0.15),
+    rgba(8, 3, 17, 0.15)
   );
 }
 
+
+/* ================================================================
+   Hero 文字疊層
+   ================================================================ */
+.hero-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 0 24px;
+  max-width: 720px;
+  width: 100%;
+}
+.hero-badge {
+  display: inline-block;
+  font-size: calc(11px + var(--fs-bump));
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent-cyan);
+  background: rgba(0,198,255,0.1);
+  border: 1px solid rgba(0,198,255,0.3);
+  padding: 5px 16px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+}
+.hero-title {
+  font-size: calc(72px + var(--fs-bump));
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -2px;
+  margin: 0 0 16px;
+  line-height: 1.05;
+  background: var(--brand-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 40px rgba(123,47,255,0.5));
+}
+.hero-sub {
+  font-size: calc(18px + var(--fs-bump));
+  color: rgba(240,236,255,0.8);
+  margin: 0 0 36px;
+  max-width: 560px;
+  line-height: 1.6;
+}
+.hero-cta-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ================================================================
+   統計列
+   ================================================================ */
+.stats-bar {
+  padding: 28px 0;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(22,10,40,0.6);
+  backdrop-filter: blur(12px);
+}
+.stats-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  flex-wrap: wrap;
+}
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 40px;
+  gap: 4px;
+}
+.stat-num {
+  font-size: calc(20px + var(--fs-bump));
+  font-weight: 900;
+  background: var(--brand-gradient);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.stat-label {
+  font-size: calc(12px + var(--fs-bump));
+  color: var(--text-sub);
+  white-space: nowrap;
+}
+.stat-divider {
+  width: 1px;
+  height: 40px;
+  background: var(--border-color);
+}
+
+/* ================================================================
+   CTA 卡片頂部強調線 & 圖示
+   ================================================================ */
+.cta-card-accent {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: var(--radius-card) var(--radius-card) 0 0;
+}
+.cta-card-accent.cyan   { background: linear-gradient(90deg,#00c6ff,#7b2fff); }
+.cta-card-accent.purple { background: linear-gradient(90deg,#7b2fff,#4568dc); }
+
+.cta-card-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 16px;
+  color: var(--accent-cyan);
+}
+.cta-card-icon svg { width: 100%; height: 100%; }
+
+/* ================================================================
+   運作原理（步驟流）
+   ================================================================ */
+.how-wrap {
+  padding: 64px 0;
+  background: rgba(8,3,17,0.4);
+}
+.how-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 720px;
+  margin: 0 auto;
+}
+.how-step {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+}
+.how-step-num {
+  flex-shrink: 0;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--btn-gradient);
+  color: #fff;
+  font-size: calc(14px + var(--fs-bump));
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 20px rgba(123,47,255,0.4);
+}
+.how-step-body { padding-top: 8px; }
+.how-step-body h3 {
+  margin: 0 0 8px;
+  font-size: calc(18px + var(--fs-bump));
+  color: #fff;
+  font-weight: 700;
+}
+.how-step-body p {
+  margin: 0;
+  color: var(--text-sub);
+  font-size: calc(15px + var(--fs-bump));
+  line-height: 1.7;
+}
+.how-connector {
+  width: 2px;
+  height: 40px;
+  margin-left: 25px;
+  background: linear-gradient(to bottom, rgba(123,47,255,0.5), rgba(0,198,255,0.3));
+}
+
+/* ================================================================
+   區塊鏈特色區
+   ================================================================ */
+.blockchain-feature-wrap {
+  padding: 72px 0;
+  background: radial-gradient(ellipse 80% 60% at 60% 50%, rgba(123,47,255,0.1) 0%, transparent 70%);
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+.blockchain-feature-inner {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  align-items: center;
+}
+.section-eyebrow {
+  font-size: calc(11px + var(--fs-bump));
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--accent-cyan);
+  margin-bottom: 16px;
+}
+.blockchain-feature-text h2 {
+  font-size: calc(30px + var(--fs-bump));
+  font-weight: 900;
+  color: #fff;
+  margin: 0 0 20px;
+  line-height: 1.25;
+  letter-spacing: -0.5px;
+}
+.blockchain-feature-text p {
+  color: var(--text-sub);
+  font-size: calc(15px + var(--fs-bump));
+  line-height: 1.75;
+  margin: 0 0 24px;
+}
+.blockchain-feature-list {
+  list-style: none;
+  padding: 0; margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.blockchain-feature-list li {
+  font-size: calc(14px + var(--fs-bump));
+  color: var(--text-sub);
+  padding-left: 1.4em;
+  position: relative;
+  line-height: 1.6;
+}
+.blockchain-feature-list li::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0.55em;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent-cyan);
+  box-shadow: 0 0 8px rgba(0,198,255,0.6);
+}
+
+/* 區塊鏈示意圖 */
+.bc-chain-demo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+.bc-block {
+  width: 200px;
+  border: 1px solid rgba(123,47,255,0.35);
+  border-radius: 12px;
+  padding: 14px 20px;
+  background: rgba(22,10,40,0.8);
+  text-align: center;
+  backdrop-filter: blur(8px);
+  transition: border-color 0.3s;
+}
+.bc-block.genesis  { border-color: rgba(0,198,255,0.3); }
+.bc-block.active   { border-color: rgba(123,47,255,0.7); box-shadow: 0 0 24px rgba(123,47,255,0.25); }
+.bc-block.ghost    { opacity: 0.4; border-style: dashed; }
+.bc-block-label    { font-size: calc(10px + var(--fs-bump)); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-sub); margin-bottom: 4px; }
+.bc-block-hash     { font-family: monospace; font-size: calc(13px + var(--fs-bump)); color: var(--accent-cyan); font-weight: 700; }
+.bc-block-meta     { font-size: calc(10px + var(--fs-bump)); color: #4ade80; margin-top: 4px; }
+.bc-arrow          { font-size: calc(18px + var(--fs-bump)); color: rgba(123,47,255,0.5); line-height: 1; padding: 4px 0; }
+
+/* ================================================================
+   功能概述 — 圖示
+   ================================================================ */
+.feature-icon {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 16px;
+}
+.feature-icon svg { width: 100%; height: 100%; }
+
+/* ================================================================
+   捲動淡入動畫
+   ================================================================ */
+.fade-in {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.how-step.fade-in:nth-child(1) { transition-delay: 0s; }
+.how-step.fade-in:nth-child(3) { transition-delay: 0.1s; }
+.how-step.fade-in:nth-child(5) { transition-delay: 0.2s; }
+.how-step.fade-in:nth-child(7) { transition-delay: 0.3s; }
+.feature-summary.fade-in:nth-child(2) { transition-delay: 0.1s; }
+.feature-summary.fade-in:nth-child(3) { transition-delay: 0.2s; }
+
+/* ================================================================
+   功能頁 — 頁首增強
+   ================================================================ */
+.page-hero-title-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.page-hero-badge {
+  display: inline-block;
+  font-size: calc(10px + var(--fs-bump));
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 3px 14px;
+  border-radius: 20px;
+  margin-bottom: 2px;
+}
+.embed-badge {
+  color: var(--accent-cyan);
+  background: rgba(0,198,255,0.1);
+  border: 1px solid rgba(0,198,255,0.3);
+}
+.reveal-badge {
+  color: #b57bff;
+  background: rgba(123,47,255,0.12);
+  border: 1px solid rgba(123,47,255,0.35);
+}
+.page-hero-sub {
+  font-size: calc(13px + var(--fs-bump));
+  color: var(--text-sub);
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+/* ================================================================
+   功能頁 — 說明條
+   ================================================================ */
+.info-strip {
+  display: flex;
+  gap: 0;
+  margin-bottom: 28px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: rgba(22,10,40,0.5);
+  backdrop-filter: blur(8px);
+}
+.info-strip-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 24px;
+  border-right: 1px solid var(--border-color);
+}
+.info-strip-item:last-child { border-right: none; }
+.info-strip-icon {
+  width: 36px; height: 36px;
+  flex-shrink: 0;
+  color: var(--accent-cyan);
+}
+.info-strip-icon svg { width: 100%; height: 100%; }
+.info-strip-label {
+  font-size: calc(13px + var(--fs-bump));
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 2px;
+}
+.info-strip-desc {
+  font-size: calc(11px + var(--fs-bump));
+  color: var(--text-sub);
+}
+
+/* ================================================================
+   功能頁 — 工具卡頂部強調線
+   ================================================================ */
+.tool-card-accent-embed { border-top: 3px solid var(--accent-cyan); }
+.tool-card-accent-reveal { border-top: 3px solid #7b2fff; }
+
+/* ================================================================
+   功能頁 — 操作步驟指示
+   ================================================================ */
+.tool-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.tool-step-num {
+  flex-shrink: 0;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--btn-gradient);
+  color: #fff;
+  font-size: calc(13px + var(--fs-bump));
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 12px rgba(123,47,255,0.4);
+}
+.tool-step-title {
+  font-size: calc(15px + var(--fs-bump));
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 2px;
+}
+.tool-step-desc {
+  font-size: calc(12px + var(--fs-bump));
+  color: var(--text-sub);
+}
+
+/* ================================================================
+   功能頁 — 格數選擇卡片
+   ================================================================ */
+.grid-select-wrap {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 16px 0 8px;
+  flex-wrap: wrap;
+}
+.grid-opt input[type="radio"] { display: none; }
+.grid-opt-card {
+  padding: 18px 28px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 14px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(255,255,255,0.03);
+  min-width: 90px;
+}
+.grid-opt input:checked + .grid-opt-card {
+  border-color: var(--accent-cyan);
+  background: rgba(0,198,255,0.08);
+  box-shadow: 0 0 16px rgba(0,198,255,0.2);
+}
+.grid-opt-card:hover { border-color: rgba(255,255,255,0.3); }
+.grid-opt-num {
+  font-size: calc(20px + var(--fs-bump));
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 6px;
+}
+.grid-opt-tag {
+  font-size: calc(10px + var(--fs-bump));
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+  letter-spacing: 0.5px;
+}
+.grid-opt-tag.quality { background: rgba(0,198,255,0.15); color: var(--accent-cyan); }
+.grid-opt-tag.balance { background: rgba(123,47,255,0.15); color: #b57bff; }
+.grid-opt-tag.robust  { background: rgba(74,222,128,0.15); color: #4ade80; }
+
+/* ================================================================
+   功能頁 — 結果標籤
+   ================================================================ */
+.result-label {
+  font-size: calc(13px + var(--fs-bump));
+  font-weight: 700;
+  color: var(--text-sub);
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+/* ================================================================
+   功能頁 — 還原流程指示器
+   ================================================================ */
+.reveal-flow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  padding: 16px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+  flex-wrap: wrap;
+}
+.reveal-flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  font-size: calc(12px + var(--fs-bump));
+  color: var(--text-sub);
+  font-weight: 600;
+  transition: color 0.3s;
+}
+.reveal-flow-step.active { color: var(--accent-cyan); }
+.reveal-flow-icon {
+  width: 28px; height: 28px;
+  opacity: 0.5;
+}
+.reveal-flow-step.active .reveal-flow-icon { opacity: 1; }
+.reveal-flow-icon svg { width: 100%; height: 100%; }
+.reveal-flow-arrow {
+  font-size: calc(16px + var(--fs-bump));
+  color: var(--border-color);
+  margin-bottom: 18px;
+}
+
+/* 格數下拉（還原頁） */
+.grid-select-inline {
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border-color);
+  color: #fff;
+  font-size: calc(14px + var(--fs-bump));
+  cursor: pointer;
+}
+.grid-select-inline:focus { outline: none; border-color: var(--accent-cyan); }
 
 /* ================================================================
    首頁 CTA 雙卡片
@@ -220,14 +723,14 @@ nav.nav-solid {
 }
 .cta-card-sub {
   margin: 0 0 20px !important;
-  font-size: 13px !important;
+  font-size: calc(13px + var(--fs-bump)) !important;
   color: var(--text-sub) !important;
   letter-spacing: 0.5px;
 }
 .cta-card p {
   margin: 0 0 28px;
   color: var(--text-sub);
-  font-size: 15px;
+  font-size: calc(15px + var(--fs-bump));
   line-height: 1.7;
 }
 
@@ -269,10 +772,10 @@ nav.nav-solid {
   transition: border-color 0.3s;
 }
 .feature-summary:hover { border-color: var(--border-glow); }
-.feature-summary h3 { margin: 0 0 12px; font-size: 20px; color: #fff; font-weight: 700; }
-.feature-summary p  { margin: 0; color: var(--text-sub); font-size: 15px; }
+.feature-summary h3 { margin: 0 0 12px; font-size: calc(20px + var(--fs-bump)); color: #fff; font-weight: 700; }
+.feature-summary p  { margin: 0; color: var(--text-sub); font-size: calc(15px + var(--fs-bump)); }
 .feature-summary ul { color: var(--text-sub); padding-left: 1.2em; margin: 0; }
-.feature-summary li { margin: 8px 0; font-size: 15px; }
+.feature-summary li { margin: 8px 0; font-size: calc(15px + var(--fs-bump)); }
 .feature-summary strong { color: #e0d8ff; }
 
 .content-section { padding: 48px 0; }
@@ -296,10 +799,10 @@ nav.nav-solid {
   border-color: var(--border-glow);
   box-shadow: 0 20px 50px rgba(0,0,0,0.45), var(--shadow-glow);
 }
-.report-card h3 { margin: 0 0 8px; font-size: 22px; color: #fff; font-weight: 800; }
-.report-card p  { margin: 0 0 20px; color: var(--text-sub); font-size: 15px; }
+.report-card h3 { margin: 0 0 8px; font-size: calc(22px + var(--fs-bump)); color: #fff; font-weight: 800; }
+.report-card p  { margin: 0 0 20px; color: var(--text-sub); font-size: calc(15px + var(--fs-bump)); }
 .report-card ul { color: var(--text-sub); padding-left: 1.2em; margin: 0; }
-.report-card li { margin: 8px 0; font-size: 14px; }
+.report-card li { margin: 8px 0; font-size: calc(14px + var(--fs-bump)); }
 .report-card strong { color: #e0d8ff; }
 
 .report-meta {
@@ -398,11 +901,11 @@ nav.nav-solid {
 /* CTA 卡片內按鈕 */
 .cta-card .cta-btn,
 .report-link {
-  font-size: 15px;
+  font-size: calc(15px + var(--fs-bump));
   padding: 13px 36px;
 }
 
-.report-link { font-size: 13px; padding: 10px 24px; }
+.report-link { font-size: calc(13px + var(--fs-bump)); padding: 10px 24px; }
 
 .input-file-hidden { display: none; }
 
@@ -679,12 +1182,13 @@ label {
 /* ================================================================
    首頁字體大小覆蓋（僅限非功能頁）
    ================================================================ */
-body:not(.wm-page) h1                          { font-size: 58px !important; }
+body:not(.wm-page) h1                          { font-size: calc(58px + var(--fs-bump)) !important; }
 body:not(.wm-page) h2,
-body:not(.wm-page) .section-title             { font-size: 38px !important; }
-body:not(.wm-page) h3                          { font-size: 26px !important; }
-body:not(.wm-page) .nav-logo                  { font-size: 30px !important; }
-body:not(.wm-page) p                           { font-size: 15px !important; line-height: 1.7; }
+body:not(.wm-page) .section-title             { font-size: calc(38px + var(--fs-bump)) !important; }
+body:not(.wm-page) h3                          { font-size: calc(26px + var(--fs-bump)) !important; }
+body:not(.wm-page) .nav-logo                  { font-size: calc(30px + var(--fs-bump)) !important; }
+body:not(.wm-page) p                           { font-size: calc(15px + var(--fs-bump)) !important; line-height: 1.7; }
+body:not(.wm-page) li                          { font-size: calc(15px + var(--fs-bump)) !important; }
 
 
 /* ================================================================
@@ -732,4 +1236,80 @@ body:not(.wm-page) p                           { font-size: 15px !important; lin
   .action-row .cta-btn,
   .action-row .upload-as-btn { max-width: 100%; }
   .result-row   { flex-direction: column; align-items: center; }
+
+  .hero-title   { font-size: calc(42px + var(--fs-bump)); }
+  .hero-sub     { font-size: calc(15px + var(--fs-bump)); }
+  .hero-cta-row { flex-direction: column; align-items: center; }
+
+  .stats-inner  { gap: 8px; }
+  .stat-item    { padding: 8px 20px; }
+  .stat-divider { display: none; }
+
+  .blockchain-feature-inner { grid-template-columns: 1fr; gap: 40px; }
+  .bc-chain-demo { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .bc-block      { width: 140px; padding: 10px 12px; }
+  .bc-arrow      { transform: rotate(-90deg); padding: 0 4px; }
+
+  .how-steps    { padding: 0 8px; }
+}
+
+/* ================================================================
+   Blockchain Verification Card
+   ================================================================ */
+.bc-verify-card {
+  display: none;
+  margin: 24px 0 8px;
+  border-radius: 14px;
+  border: 1px solid var(--border-color);
+  padding: 18px 24px;
+  font-size: calc(14px + var(--fs-bump));
+  transition: all 0.35s ease;
+}
+.bc-verify-card.bc-checking {
+  display: block;
+  border-color: rgba(0, 198, 255, 0.35);
+  background: rgba(0, 198, 255, 0.07);
+  color: var(--accent-cyan);
+}
+.bc-verify-card.bc-ok {
+  display: block;
+  border-color: rgba(74, 222, 128, 0.40);
+  background: rgba(74, 222, 128, 0.08);
+  color: #4ade80;
+  box-shadow: 0 0 18px rgba(74, 222, 128, 0.15);
+}
+.bc-verify-card.bc-fail {
+  display: block;
+  border-color: rgba(248, 113, 113, 0.45);
+  background: rgba(248, 113, 113, 0.09);
+  color: #f87171;
+  box-shadow: 0 0 18px rgba(248, 113, 113, 0.18);
+}
+.bc-verify-title {
+  font-weight: 700;
+  font-size: 1.05em;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bc-verify-detail {
+  font-size: 0.82em;
+  opacity: 0.80;
+  word-break: break-all;
+  margin-top: 4px;
+  line-height: 1.6;
+}
+.bc-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.bc-checking .bc-dot { background: var(--accent-cyan); animation: bcPulse 1s infinite; }
+.bc-ok   .bc-dot     { background: #4ade80; }
+.bc-fail .bc-dot     { background: #f87171; }
+@keyframes bcPulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(0.7); }
 }
