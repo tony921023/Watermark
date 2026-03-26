@@ -934,7 +934,9 @@ def build_app(static_root: Path) -> Flask:
             f_secret = request.files.get("secret")
             grid     = request.form.get("secret_grid") or request.form.get("hint_grid") \
                        or request.form.get("tiles_hint") or "2"
-            identity = (request.form.get("identity") or "").strip()
+            identity_name = (request.form.get("identity_name") or "").strip()
+            identity_unit = (request.form.get("identity_unit") or "").strip()
+            identity_note = (request.form.get("identity_note") or "").strip()
             if not f_cover:
                 return jsonify({"ok": False, "error": "need cover file"}), 400
 
@@ -955,9 +957,11 @@ def build_app(static_root: Path) -> Flask:
                 job_id=jid,
                 image_sha256=container_sha256,
                 metadata={
-                    "psnr_final_db": res.get("psnr_final_db", ""),
-                    "mode_used":     res.get("mode_used", ""),
-                    "identity":      identity,
+                    "psnr_final_db":   res.get("psnr_final_db", ""),
+                    "mode_used":       res.get("mode_used", ""),
+                    "identity_name":   identity_name,
+                    "identity_unit":   identity_unit,
+                    "identity_note":   identity_note,
                 }
             )
             # 把區塊鏈資訊寫進 PNG text chunks（不影響像素，隨圖片一起傳遞）
@@ -1055,7 +1059,11 @@ def build_app(static_root: Path) -> Flask:
             return jsonify({
                 "ok": True,
                 "blockchain_verified": True,
-                "identity": meta.get("identity", ""),
+                "identity": {
+                    "name": meta.get("identity_name", ""),
+                    "unit": meta.get("identity_unit", ""),
+                    "note": meta.get("identity_note", ""),
+                },
                 "blockchain": {
                     "block_index":  bc_block["index"],
                     "block_hash":   bc_block["block_hash"],
