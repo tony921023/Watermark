@@ -130,6 +130,29 @@ class LocalChain:
             self._save()
             return block
 
+    def unlock_single_embed(self, job_id: str) -> bool:
+        """解除指定 job_id 的單次嵌入鎖定，將 metadata.single_embed 設為 False 並持久化。"""
+        with self._lock:
+            for block in self._blocks:
+                if block.get("job_id") == job_id:
+                    block["metadata"]["single_embed"] = False
+                    self._save()
+                    return True
+        return False
+
+    def find_by_cover_hash(self, cover_hash: str) -> Optional[dict]:
+        """查詢鏈上是否已有相同 cover 圖的嵌入記錄（用於單次嵌入鎖定）。
+
+        回傳第一個符合的 block，若無則回傳 None。
+        只比對 metadata.cover_hash 且 metadata.single_embed == True 的記錄。
+        """
+        with self._lock:
+            for block in self._blocks:
+                meta = block.get("metadata", {})
+                if meta.get("single_embed") and meta.get("cover_hash") == cover_hash:
+                    return block
+        return None
+
     def verify_by_job_id(self, job_id: str, block_hash: str) -> Tuple[bool, dict, str]:
         """還原浮水印前呼叫，驗證圖片 metadata 是否與鏈上記錄吻合。
 

@@ -937,10 +937,27 @@ def build_app(static_root: Path) -> Flask:
             identity_name = (request.form.get("identity_name") or "").strip()
             identity_unit = (request.form.get("identity_unit") or "").strip()
             identity_note = (request.form.get("identity_note") or "").strip()
+            password      = (request.form.get("password") or "").strip()
+            password_hash = sha256_bytes(password.encode("utf-8")) if password else ""
+            single_embed  = request.form.get("single_embed", "0") in ("1", "true", "yes")
             if not f_cover:
                 return jsonify({"ok": False, "error": "need cover file"}), 400
 
-            cover_m11 = load_from_bytes(f_cover.read())
+            cover_raw = f_cover.read()
+            cover_hash = sha256_bytes(np.array(Image.open(io.BytesIO(cover_raw)).convert("RGB")).tobytes())
+
+            # 單次嵌入鎖定：只要鏈上曾有此 cover 的鎖定記錄，無論本次是否勾選，一律拒絕
+            existing = get_chain().find_by_cover_hash(cover_hash)
+            if existing:
+                return jsonify({
+                    "ok": False,
+                    "error": "此圖片已設定單次嵌入鎖定，鏈上已有嵌入記錄，無法重複嵌入。",
+                    "detail": "cover_already_embedded",
+                    "existing_job_id": existing["job_id"],
+                    "existing_timestamp": existing["timestamp"],
+                }), 409
+
+            cover_m11 = load_from_bytes(cover_raw)
             if f_secret:
                 secret_m11 = load_from_bytes(f_secret.read())
             else:
@@ -952,7 +969,7 @@ def build_app(static_root: Path) -> Flask:
 
             # --- 區塊鏈：對 container.png 算 SHA256，寫入新區塊，並把區塊資訊嵌入 PNG metadata ---
             container_path = Path(res["container"])
-            container_sha256 = sha256_bytes(container_path.read_bytes())
+            container_sha256 = sha256_bytes(np.array(Image.open(container_path).convert("RGB")).tobytes())
             bc_block = get_chain().record_embed(
                 job_id=jid,
                 image_sha256=container_sha256,
@@ -962,14 +979,18 @@ def build_app(static_root: Path) -> Flask:
                     "identity_name":   identity_name,
                     "identity_unit":   identity_unit,
                     "identity_note":   identity_note,
+                    "password_hash":   password_hash,
+                    "cover_hash":      cover_hash,
+                    "single_embed":    single_embed,
                 }
             )
             # 把區塊鏈資訊寫進 PNG text chunks（不影響像素，隨圖片一起傳遞）
             _png_meta = PngImagePlugin.PngInfo()
-            _png_meta.add_text("wm_job_id",     jid)
-            _png_meta.add_text("wm_block_index", str(bc_block["index"]))
-            _png_meta.add_text("wm_block_hash",  bc_block["block_hash"])
-            _png_meta.add_text("wm_timestamp",   str(bc_block["timestamp"]))
+            _png_meta.add_text("wm_job_id",              jid)
+            _png_meta.add_text("wm_block_index",         str(bc_block["index"]))
+            _png_meta.add_text("wm_block_hash",          bc_block["block_hash"])
+            _png_meta.add_text("wm_timestamp",           str(bc_block["timestamp"]))
+            _png_meta.add_text("wm_password_protected",  "1" if password_hash else "0")
             Image.open(container_path).convert("RGB").save(container_path, pnginfo=_png_meta)
 
             (job_dir / "blockchain_record.json").write_text(
@@ -1055,10 +1076,43 @@ def build_app(static_root: Path) -> Flask:
                     "wm_job_id": wm_job_id,
                 }), 403
 
+            # 圖片像素 hash 比對：防止 metadata 複製攻擊
+            img_sha256 = sha256_bytes(np.array(Image.open(io.BytesIO(raw)).convert("RGB")).tobytes())
+            if img_sha256 != bc_block.get("image_sha256", ""):
+                return jsonify({
+                    "ok": False,
+                    "blockchain_verified": False,
+                    "reason": "圖片像素與鏈上記錄不符，此圖片可能已被替換或像素遭竄改。",
+                    "detail": "image_hash_mismatch",
+                    "wm_job_id": wm_job_id,
+                }), 403
+
+            # 密碼驗證
             meta = bc_block.get("metadata", {})
+            stored_pw_hash = meta.get("password_hash", "")
+            password = (request.form.get("password") or "").strip()
+            if stored_pw_hash:
+                if not password:
+                    return jsonify({
+                        "ok": False,
+                        "blockchain_verified": True,
+                        "password_required": True,
+                        "reason": "此圖片受密碼保護，請輸入還原密碼。",
+                        "detail": "password_required",
+                    }), 403
+                if sha256_bytes(password.encode("utf-8")) != stored_pw_hash:
+                    return jsonify({
+                        "ok": False,
+                        "blockchain_verified": True,
+                        "password_required": True,
+                        "reason": "密碼錯誤，請重新輸入。",
+                        "detail": "password_wrong",
+                    }), 403
+
             return jsonify({
                 "ok": True,
                 "blockchain_verified": True,
+                "single_embed_locked": bool(meta.get("single_embed")),
                 "identity": {
                     "name": meta.get("identity_name", ""),
                     "unit": meta.get("identity_unit", ""),
@@ -1077,6 +1131,54 @@ def build_app(static_root: Path) -> Flask:
         except Exception as e:
             return jsonify({"ok": False, "error": str(e)}), 500
 
+    @app.post("/wm/unlock")
+    def wm_unlock():
+        """驗證密碼後解除單次嵌入鎖定。"""
+        try:
+            f = request.files.get("image")
+            if not f:
+                return jsonify({"ok": False, "error": "need image file"}), 400
+            raw = f.read()
+
+            # 讀取 PNG metadata
+            try:
+                tmp_img = Image.open(io.BytesIO(raw))
+                wm_job_id     = tmp_img.info.get("wm_job_id", "").strip()
+                wm_block_hash = tmp_img.info.get("wm_block_hash", "").strip()
+            except Exception:
+                wm_job_id = wm_block_hash = ""
+
+            if not wm_job_id or not wm_block_hash:
+                return jsonify({"ok": False, "reason": "此圖片不含浮水印區塊鏈資訊。", "detail": "no_metadata"}), 403
+
+            # 區塊鏈驗證
+            bc_ok, bc_block, bc_reason = get_chain().verify_by_job_id(wm_job_id, wm_block_hash)
+            if not bc_ok:
+                return jsonify({"ok": False, "reason": "區塊鏈驗證失敗。", "detail": bc_reason}), 403
+
+            # 圖片 hash 比對
+            img_sha256 = sha256_bytes(np.array(Image.open(io.BytesIO(raw)).convert("RGB")).tobytes())
+            if img_sha256 != bc_block.get("image_sha256", ""):
+                return jsonify({"ok": False, "reason": "圖片像素與鏈上記錄不符。", "detail": "image_hash_mismatch"}), 403
+
+            # 密碼驗證
+            meta = bc_block.get("metadata", {})
+            stored_pw_hash = meta.get("password_hash", "")
+            password = (request.form.get("password") or "").strip()
+            if stored_pw_hash:
+                if not password or sha256_bytes(password.encode("utf-8")) != stored_pw_hash:
+                    return jsonify({"ok": False, "reason": "密碼錯誤，無法解除鎖定。", "detail": "password_wrong"}), 403
+
+            # 確認鎖定狀態
+            if not meta.get("single_embed"):
+                return jsonify({"ok": False, "reason": "此圖片並未設定單次嵌入鎖定。", "detail": "not_locked"}), 400
+
+            # 解鎖
+            get_chain().unlock_single_embed(wm_job_id)
+            return jsonify({"ok": True, "unlocked": True, "job_id": wm_job_id})
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
+
     @app.post("/external_reveal")
     def external_reveal():
         try:
@@ -1089,6 +1191,7 @@ def build_app(static_root: Path) -> Flask:
                 return jsonify({"ok": False, "error": "need image(file)"}), 400
 
             raw = f.read()
+            img_sha256 = sha256_bytes(raw)
 
             # --- 區塊鏈驗證：從 PNG metadata 讀取嵌入的區塊資訊，查鏈，不通過就拒絕 ---
             try:
@@ -1120,6 +1223,18 @@ def build_app(static_root: Path) -> Flask:
                     "detail": bc_reason,
                     "wm_job_id": wm_job_id,
                 }), 403
+            # 密碼驗證（與 /wm/verify 邏輯一致）
+            _rev_meta = bc_block.get("metadata", {})
+            _stored_pw = _rev_meta.get("password_hash", "")
+            if _stored_pw:
+                _provided = (request.form.get("password") or "").strip()
+                if not _provided or sha256_bytes(_provided.encode("utf-8")) != _stored_pw:
+                    return jsonify({
+                        "ok": False,
+                        "blockchain_verified": True,
+                        "reason": "密碼錯誤，無法執行還原。",
+                        "detail": "password_wrong",
+                    }), 403
             # -----------------------------------------------------------------------
 
             try:

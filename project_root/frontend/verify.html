@@ -98,27 +98,101 @@
       <div id="verifySpinner" class="spinner" style="display:none;">查詢中…</div>
 
       <!-- 驗證結果卡 -->
-      <div id="verifyResultCard" style="display:none; margin-top:20px; padding:18px 20px; border-radius:10px; border:1.5px solid #d1fae5; background:#f0fdf4;">
-        <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="#22c55e" opacity=".15"/><path d="M8 12l3 3 5-5" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span style="font-weight:700; color:#15803d; font-size:16px;">區塊鏈驗證通過</span>
+      <div id="verifyResultCard" style="display:none; margin-top:20px; border-radius:12px; overflow:hidden; border:1.5px solid #bbf7d0; box-shadow:0 2px 12px rgba(22,163,74,.08);">
+
+        <!-- 標題列 -->
+        <div style="display:flex; align-items:center; gap:10px; padding:14px 20px; background:linear-gradient(135deg,#16a34a,#15803d);">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7v5c0 5 4 9.3 9 10.3C17 21.3 21 17 21 12V7l-9-5z" fill="rgba(255,255,255,.2)" stroke="#fff" stroke-width="1.5"/><path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span style="font-weight:700; color:#fff; font-size:15px; letter-spacing:.3px;">區塊鏈驗證通過</span>
+          <span style="margin-left:auto; font-size:11px; color:rgba(255,255,255,.75); background:rgba(255,255,255,.15); padding:2px 10px; border-radius:20px;">VERIFIED</span>
         </div>
-        <div id="identityDisplay" style="margin-bottom:14px; padding:12px 14px; background:#fff; border-radius:8px; border:1px solid #d1fae5;">
-          <div style="font-size:12px; color:#6b7280; margin-bottom:10px; font-weight:600;">嵌入時的身分資訊</div>
-          <div style="display:grid; grid-template-columns:80px 1fr; gap:6px 12px; font-size:14px;">
-            <div style="color:#6b7280;">姓名</div>
-            <div id="identityNameText" style="font-weight:600; color:#111827;"></div>
-            <div style="color:#6b7280;">單位</div>
-            <div id="identityUnitText" style="font-weight:600; color:#111827;"></div>
-            <div style="color:#6b7280;">備註</div>
-            <div id="identityNoteText" style="font-weight:600; color:#111827; word-break:break-all;"></div>
+
+        <div style="padding:18px 20px; background:#f0fdf4;">
+
+          <!-- 身分資訊 -->
+          <div id="identityDisplay" style="margin-bottom:16px;">
+            <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#16a34a" stroke-width="1.8"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round"/></svg>
+              <span style="font-size:11px; font-weight:700; color:#15803d; text-transform:uppercase; letter-spacing:.8px;">嵌入身分資訊</span>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+              <div style="padding:10px 14px; background:#fff; border-radius:8px; border:1px solid #d1fae5;">
+                <div style="font-size:11px; color:#6b7280; margin-bottom:4px;">姓名</div>
+                <div id="identityNameText" style="font-size:15px; font-weight:700; color:#111827;"></div>
+              </div>
+              <div style="padding:10px 14px; background:#fff; border-radius:8px; border:1px solid #d1fae5;">
+                <div style="font-size:11px; color:#6b7280; margin-bottom:4px;">單位 / 組織</div>
+                <div id="identityUnitText" style="font-size:15px; font-weight:700; color:#111827;"></div>
+              </div>
+              <div style="grid-column:1/-1; padding:10px 14px; background:#fff; border-radius:8px; border:1px solid #d1fae5;">
+                <div style="font-size:11px; color:#6b7280; margin-bottom:4px;">備註</div>
+                <div id="identityNoteText" style="font-size:14px; font-weight:500; color:#374151; word-break:break-all;"></div>
+              </div>
+            </div>
           </div>
+
+          <!-- 區塊鏈資訊 -->
+          <div id="bcInfoDisplay">
+            <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="2" y="7" width="6" height="10" rx="1.5" stroke="#16a34a" stroke-width="1.8"/><rect x="9" y="4" width="6" height="16" rx="1.5" stroke="#16a34a" stroke-width="1.8"/><rect x="16" y="9" width="6" height="8" rx="1.5" stroke="#16a34a" stroke-width="1.8"/></svg>
+              <span style="font-size:11px; font-weight:700; color:#15803d; text-transform:uppercase; letter-spacing:.8px;">區塊鏈存證</span>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+              <div style="padding:9px 12px; background:#fff; border-radius:8px; border:1px solid #d1fae5; display:flex; align-items:center; gap:8px;">
+                <div style="width:28px; height:28px; border-radius:6px; background:#dcfce7; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 7h18M3 12h18M3 17h12" stroke="#16a34a" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <div style="min-width:0;">
+                  <div style="font-size:10px; color:#6b7280;">Block</div>
+                  <div style="font-size:14px; font-weight:700; color:#111827;">#<span id="bcIndex"></span></div>
+                </div>
+              </div>
+              <div style="padding:9px 12px; background:#fff; border-radius:8px; border:1px solid #d1fae5; display:flex; align-items:center; gap:8px;">
+                <div style="width:28px; height:28px; border-radius:6px; background:#dcfce7; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="#16a34a" stroke-width="2"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2" stroke="#16a34a" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <div style="min-width:0;">
+                  <div style="font-size:10px; color:#6b7280;">嵌入時間</div>
+                  <div id="bcTime" style="font-size:12px; font-weight:600; color:#111827;"></div>
+                </div>
+              </div>
+              <div style="grid-column:1/-1; padding:9px 12px; background:#fff; border-radius:8px; border:1px solid #d1fae5;">
+                <div style="font-size:10px; color:#6b7280; margin-bottom:3px;">Block Hash</div>
+                <div id="bcHash" style="font-family:monospace; font-size:11px; color:#374151; word-break:break-all; line-height:1.6;"></div>
+              </div>
+              <div style="grid-column:1/-1; padding:9px 12px; background:#fff; border-radius:8px; border:1px solid #d1fae5;">
+                <div style="font-size:10px; color:#6b7280; margin-bottom:3px;">Job ID</div>
+                <div id="bcJobId" style="font-family:monospace; font-size:11px; color:#374151; word-break:break-all;"></div>
+              </div>
+            </div>
+          </div>
+
         </div>
-        <div id="bcInfoDisplay" style="font-size:12px; color:#6b7280; line-height:1.8;">
-          <div>Block #<span id="bcIndex"></span></div>
-          <div>Hash：<span id="bcHash" style="font-family:monospace;"></span></div>
-          <div>Job ID：<span id="bcJobId" style="font-family:monospace;"></span></div>
-          <div>時間：<span id="bcTime"></span></div>
+      </div>
+
+      <!-- 解除單次嵌入鎖定 -->
+      <div id="unlockSection" style="display:none; margin-top:12px; padding:14px 18px; border-radius:10px; border:1.5px solid #fca5a5; background:#fff5f5;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M17 11V7a5 5 0 00-10 0v4" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/><rect x="3" y="11" width="18" height="12" rx="2" fill="#fee2e2" stroke="#dc2626" stroke-width="1.5"/><circle cx="12" cy="17" r="1.5" fill="#dc2626"/></svg>
+          <span style="font-size:13px; font-weight:700; color:#991b1b;">此圖片已啟用單次嵌入鎖定</span>
+        </div>
+        <div style="font-size:12px; color:#7f1d1d; margin-bottom:12px;">解除後，相同圖片將可再次嵌入。此操作不可逆，請確認後再執行。</div>
+        <button id="unlockBtn" type="button" class="cta-btn" style="background:linear-gradient(135deg,#dc2626,#b91c1c); font-size:13px; padding:8px 18px;">🔓 解除單次嵌入鎖定</button>
+        <div id="unlockMsg" style="display:none; margin-top:10px; font-size:13px;"></div>
+      </div>
+
+      <!-- 密碼驗證區 -->
+      <div id="passwordSection" style="display:none; margin-top:20px; padding:18px 20px; border-radius:10px; border:1.5px solid #fef3c7; background:#fffbeb;">
+        <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M17 11V7a5 5 0 00-10 0v4" stroke="#d97706" stroke-width="2" stroke-linecap="round"/><rect x="3" y="11" width="18" height="12" rx="2" fill="#fde68a" stroke="#d97706" stroke-width="1.5"/><circle cx="12" cy="17" r="1.5" fill="#d97706"/></svg>
+          <span style="font-weight:700; color:#92400e; font-size:15px;">此圖片受密碼保護</span>
+        </div>
+        <div style="font-size:13px; color:#78350f; margin-bottom:12px;">區塊鏈驗證通過。請輸入嵌入時設定的還原密碼才能查看身分與執行還原。</div>
+        <input type="password" id="verifyPassword" placeholder="還原密碼"
+          style="padding:10px 14px; border:1px solid #fcd34d; border-radius:8px; font-size:15px; width:100%; box-sizing:border-box;" />
+        <div id="pwErrorMsg" style="display:none; color:#dc2626; font-size:13px; margin-top:6px;"></div>
+        <div class="action-row" style="margin-top:12px;">
+          <button id="confirmPwBtn" type="button" class="cta-btn">確認密碼</button>
         </div>
       </div>
 
@@ -236,6 +310,7 @@
     var preview    = document.getElementById('verifyPreview');
     var _currentFile = null;
     var _verified    = false;
+    var _password    = '';
 
     /* ---- 上傳提醒 ---- */
     var modal   = document.getElementById('noticeModal');
@@ -251,8 +326,9 @@
     /* ---- 選擇檔案 ---- */
     fileInput.addEventListener('change', function(){
       _currentFile = fileInput.files && fileInput.files[0];
-      _verified = false;
-      hide('verifyResultCard'); hide('verifyErrorCard'); hide('revealSection'); hide('revealResults');
+      _verified = false; _password = '';
+      hide('verifyResultCard'); hide('verifyErrorCard'); hide('revealSection');
+      hide('revealResults'); hide('passwordSection');
       setText('revealResp', '');
 
       if(_currentFile){
@@ -266,10 +342,70 @@
       }
     });
 
-    /* ---- 驗證 ---- */
+    /* ---- 工具函式 ---- */
+    function show(id){ var el=typeof id==='string'?document.getElementById(id):id; if(el) el.style.display='block'; }
+    function hide(id){ var el=typeof id==='string'?document.getElementById(id):id; if(el) el.style.display='none'; }
+    function setText(id, msg, isErr){ var el=document.getElementById(id); if(!el) return; el.textContent=msg||''; el.className='response '+(isErr?'error':(msg?'success':'')); }
+
+    function _showIdentity(data){
+      var identity = data.identity || {};
+      document.getElementById('identityNameText').textContent = identity.name || '—';
+      document.getElementById('identityUnitText').textContent = identity.unit || '—';
+      document.getElementById('identityNoteText').textContent = identity.note || '—';
+      document.getElementById('identityDisplay').style.display = '';
+      var bc = data.blockchain || {};
+      document.getElementById('bcIndex').textContent = bc.block_index !== undefined ? bc.block_index : '-';
+      document.getElementById('bcHash').textContent  = bc.block_hash || '-';
+      document.getElementById('bcJobId').textContent = bc.embed_job_id || '-';
+      var ts = bc.timestamp ? new Date(bc.timestamp*1000).toLocaleString('zh-TW') : '-';
+      document.getElementById('bcTime').textContent = ts;
+      show('verifyResultCard'); hide('verifyErrorCard'); show('revealSection');
+      // 單次嵌入鎖定狀態
+      if(data.single_embed_locked){
+        document.getElementById('unlockMsg').style.display = 'none';
+        document.getElementById('unlockMsg').textContent = '';
+        document.getElementById('unlockBtn').disabled = false;
+        show('unlockSection');
+      } else {
+        hide('unlockSection');
+      }
+    }
+
+    /* ---- 解除鎖定 ---- */
+    var unlockBtn = document.getElementById('unlockBtn');
+    unlockBtn && unlockBtn.addEventListener('click', async function(){
+      if(!_currentFile) return;
+      unlockBtn.disabled = true;
+      var msgEl = document.getElementById('unlockMsg');
+      msgEl.style.display = 'none'; msgEl.textContent = '';
+      try {
+        var fd = new FormData();
+        fd.append('image', _currentFile);
+        if(_password) fd.append('password', _password);
+        var res = await fetch(WM_API_BASE + '/wm/unlock', { method:'POST', body:fd, mode:'cors' });
+        var data = await res.json().catch(function(){ return {}; });
+        if(data && data.ok){
+          msgEl.textContent = '✅ 鎖定已解除，此圖片現可重新嵌入。';
+          msgEl.style.color = '#15803d'; msgEl.style.display = 'block';
+          unlockBtn.style.display = 'none';
+        } else {
+          msgEl.textContent = '❌ ' + ((data && data.reason) || '解除失敗');
+          msgEl.style.color = '#dc2626'; msgEl.style.display = 'block';
+          unlockBtn.disabled = false;
+        }
+      } catch(err) {
+        msgEl.textContent = '❌ 無法連線後端：' + err.message;
+        msgEl.style.color = '#dc2626'; msgEl.style.display = 'block';
+        unlockBtn.disabled = false;
+      }
+    });
+
+    /* ---- 步驟一：區塊鏈驗證（不含密碼）---- */
     verifyBtn.addEventListener('click', async function(){
       if(!_currentFile) return;
-      show('verifySpinner'); hide('verifyResultCard'); hide('verifyErrorCard'); hide('revealSection');
+      _verified = false; _password = '';
+      show('verifySpinner'); hide('verifyResultCard'); hide('verifyErrorCard');
+      hide('revealSection'); hide('passwordSection');
 
       try {
         var fd = new FormData();
@@ -277,41 +413,66 @@
         var res = await fetch(WM_API_BASE + '/wm/verify', { method:'POST', body:fd, mode:'cors' });
         var data = await res.json().catch(function(){ return {}; });
 
-        if(data && data.ok && data.blockchain_verified){
-          // 驗證通過
-          var identity = data.identity || {};
-          var name = identity.name || ''; var unit = identity.unit || ''; var note = identity.note || '';
-          document.getElementById('identityNameText').textContent = name || '—';
-          document.getElementById('identityUnitText').textContent = unit || '—';
-          document.getElementById('identityNoteText').textContent = note || '—';
-          document.getElementById('identityDisplay').style.display = '';
-
-          var bc = data.blockchain || {};
-          document.getElementById('bcIndex').textContent  = bc.block_index !== undefined ? bc.block_index : '-';
-          document.getElementById('bcHash').textContent   = bc.block_hash ? bc.block_hash.slice(0,24)+'…' : '-';
-          document.getElementById('bcJobId').textContent  = bc.embed_job_id || '-';
-          var ts = bc.timestamp ? new Date(bc.timestamp * 1000).toLocaleString('zh-TW') : '-';
-          document.getElementById('bcTime').textContent   = ts;
-
-          show('verifyResultCard'); hide('verifyErrorCard');
-          show('revealSection');
+        if(data && data.blockchain_verified && data.password_required){
+          // 區塊鏈通過但需密碼
+          document.getElementById('pwErrorMsg').style.display = 'none';
+          document.getElementById('pwErrorMsg').textContent = '';
+          if(document.getElementById('verifyPassword'))
+            document.getElementById('verifyPassword').value = '';
+          show('passwordSection');
+        } else if(data && data.ok && data.blockchain_verified){
+          _showIdentity(data);
           _verified = true;
         } else {
           var reason = (data && data.reason) || '驗證失敗，請確認圖片是否為系統產出的 container 圖片。';
           document.getElementById('verifyErrorMsg').textContent = reason;
           show('verifyErrorCard'); hide('verifyResultCard'); hide('revealSection');
-          _verified = false;
         }
       } catch(err) {
         document.getElementById('verifyErrorMsg').textContent = '無法連線後端（5001）：' + err.message;
         show('verifyErrorCard'); hide('verifyResultCard'); hide('revealSection');
-        _verified = false;
       } finally {
         hide('verifySpinner');
       }
     });
 
-    /* ---- 執行還原 ---- */
+    /* ---- 步驟二：確認密碼 ---- */
+    var confirmPwBtn = document.getElementById('confirmPwBtn');
+    confirmPwBtn && confirmPwBtn.addEventListener('click', async function(){
+      if(!_currentFile) return;
+      var pw = (document.getElementById('verifyPassword').value || '').trim();
+      if(!pw){
+        document.getElementById('pwErrorMsg').textContent = '請輸入密碼';
+        document.getElementById('pwErrorMsg').style.display = 'block';
+        return;
+      }
+      confirmPwBtn.disabled = true;
+      try {
+        var fd = new FormData();
+        fd.append('image', _currentFile);
+        fd.append('password', pw);
+        var res = await fetch(WM_API_BASE + '/wm/verify', { method:'POST', body:fd, mode:'cors' });
+        var data = await res.json().catch(function(){ return {}; });
+
+        if(data && data.ok && data.blockchain_verified){
+          _password = pw;
+          hide('passwordSection');
+          _showIdentity(data);
+          _verified = true;
+        } else {
+          var reason = (data && data.reason) || '驗證失敗';
+          document.getElementById('pwErrorMsg').textContent = reason;
+          document.getElementById('pwErrorMsg').style.display = 'block';
+        }
+      } catch(err) {
+        document.getElementById('pwErrorMsg').textContent = '無法連線後端：' + err.message;
+        document.getElementById('pwErrorMsg').style.display = 'block';
+      } finally {
+        confirmPwBtn.disabled = false;
+      }
+    });
+
+    /* ---- 執行還原（帶密碼）---- */
     doRevealBtn.addEventListener('click', async function(){
       if(!_currentFile || !_verified) return;
       doRevealBtn.disabled = true; doRevealBtn.style.opacity = '0.6';
@@ -328,6 +489,7 @@
         fd.append('image', _currentFile);
         fd.append('tiles_hint', grid);
         fd.append('hint_grid', grid);
+        if(_password) fd.append('password', _password);
 
         var res = await fetch(WM_API_BASE + '/external_reveal', { method:'POST', body:fd, mode:'cors' });
         var data = await res.json().catch(function(){ return {}; });
@@ -338,24 +500,18 @@
           return;
         }
 
-        // 顯示結果
         var base = data.images || {};
         var bestUrl = absoluteWMUrl(base.tile_best_256 || base.tile_best || base.reveal || '');
         if(bestUrl){
           var outImg = document.getElementById('revealOutputImg');
           outImg.src = bestUrl; outImg.style.display = 'block';
-
           var dlA = document.getElementById('downloadRevealResult');
           dlA.href = bestUrl; dlA.style.display = 'inline-block';
-
-          // 複製預覽圖到結果區
           var inPrev = document.getElementById('revealInputPreview');
           inPrev.src = preview.src; inPrev.style.display = 'block';
-
           document.getElementById('revealResults').style.display = 'block';
           if(typeof bindZoomToNewImages === 'function') bindZoomToNewImages();
         }
-
         setText('revealResp', '還原完成');
       } catch(err) {
         setText('revealResp', '無法連線後端（5001）：' + err.message, true);
@@ -365,26 +521,9 @@
       }
     });
 
-    /* ---- 工具函式 ---- */
-    function show(id){
-      var el = typeof id==='string' ? document.getElementById(id) : id;
-      if(el) el.style.display = 'block';
-    }
-    function hide(id){
-      var el = typeof id==='string' ? document.getElementById(id) : id;
-      if(el) el.style.display = 'none';
-    }
-    function setText(id, msg, isErr){
-      var el = document.getElementById(id); if(!el) return;
-      el.textContent = msg || '';
-      el.className = 'response ' + (isErr ? 'error' : (msg ? 'success' : ''));
-    }
-
-    /* ---- 格數同步 ---- */
     document.querySelectorAll('input[name="verifyGridRadio"]').forEach(function(r){
       r.addEventListener('change', function(){});
     });
-
     document.addEventListener('DOMContentLoaded', function(){
       if(typeof bindZoomToNewImages === 'function') bindZoomToNewImages();
     });

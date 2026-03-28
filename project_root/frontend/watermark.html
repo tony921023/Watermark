@@ -148,6 +148,19 @@
           <input type="text" id="identityNote" placeholder="用途說明、版權聲明、聯絡方式…"
             style="padding:10px 14px; border:1px solid #d1d5db; border-radius:8px; font-size:15px; width:100%; box-sizing:border-box;" />
         </div>
+        <div style="padding:14px 16px; background:#fffbeb; border:1px solid #fcd34d; border-radius:8px;">
+          <label style="font-size:13px; color:#92400e; display:block; margin-bottom:4px; font-weight:600;">🔒 還原密碼（選填）</label>
+          <input type="password" id="identityPassword" placeholder="設定後驗證時須輸入正確密碼才能還原"
+            style="padding:10px 14px; border:1px solid #fcd34d; border-radius:8px; font-size:15px; width:100%; box-sizing:border-box;" />
+          <div style="font-size:12px; color:#a16207; margin-top:5px;">留空則任何取得圖片的人皆可執行還原</div>
+        </div>
+        <label style="display:flex; align-items:flex-start; gap:10px; padding:14px 16px; background:#fef2f2; border:1px solid #fca5a5; border-radius:8px; cursor:pointer;">
+          <input type="checkbox" id="singleEmbedCheck" style="margin-top:3px; accent-color:#dc2626; width:16px; height:16px; flex-shrink:0;" />
+          <div>
+            <div style="font-size:13px; color:#991b1b; font-weight:600;">🔐 單次嵌入鎖定</div>
+            <div style="font-size:12px; color:#b91c1c; margin-top:3px;">啟用後，此圖片在鏈上只能嵌入一次。若使用相同圖片再次嵌入，系統將拒絕並回報已有記錄。</div>
+          </div>
+        </label>
       </div>
 
       <!-- 步驟 4 -->
@@ -428,15 +441,31 @@
       var fd=new FormData(); fd.append("cover", file);
       var gridVal=parseInt((document.getElementById("secretGrid")||{value:"2"}).value,10);
       _appendTilesHints(fd, gridVal);
-      var idName =(document.getElementById("identityName") ||{value:""}).value.trim();
-      var idUnit =(document.getElementById("identityUnit") ||{value:""}).value.trim();
-      var idNote =(document.getElementById("identityNote") ||{value:""}).value.trim();
-      if(idName) fd.append("identity_name", idName);
-      if(idUnit) fd.append("identity_unit", idUnit);
-      if(idNote) fd.append("identity_note", idNote);
+      var idName =(document.getElementById("identityName")    ||{value:""}).value.trim();
+      var idUnit =(document.getElementById("identityUnit")    ||{value:""}).value.trim();
+      var idNote =(document.getElementById("identityNote")    ||{value:""}).value.trim();
+      var idPw         =(document.getElementById("identityPassword") ||{value:""}).value.trim();
+      var singleEmbed  =(document.getElementById("singleEmbedCheck")||{checked:false}).checked;
+      if(idName)      fd.append("identity_name", idName);
+      if(idUnit)      fd.append("identity_unit", idUnit);
+      if(idNote)      fd.append("identity_note", idNote);
+      if(idPw)        fd.append("password",      idPw);
+      if(singleEmbed) fd.append("single_embed",  "1");
 
       var res=await fetch(WM_API_BASE+"/wm/embed",{method:"POST",body:fd,mode:"cors"});
-      if(!res.ok){ var t=""; try{t=await res.text();}catch(e){} throw new Error("HTTP "+res.status+(t?": "+t.slice(0,200):"")); }
+      if(!res.ok){
+        var errData={}; try{ errData=await res.json(); }catch(e){}
+        if(errData.detail==="cover_already_embedded"){
+          var ts=errData.existing_timestamp ? new Date(errData.existing_timestamp*1000).toLocaleString('zh-TW') : '';
+          var msg="🔐 單次嵌入鎖定：此圖片已於鏈上登記，無法重複嵌入。";
+          if(ts) msg+="\n首次嵌入時間："+ts;
+          if(errData.existing_job_id) msg+="\nJob ID："+errData.existing_job_id;
+          setMsg("wmEmbedResp", msg, true);
+          hide(document.getElementById("wmEmbedSpinner")); return;
+        }
+        var t=errData.error||errData.reason||("HTTP "+res.status);
+        throw new Error(t);
+      }
 
       var ct=(res.headers.get("content-type")||"").toLowerCase();
 
@@ -451,7 +480,7 @@
         bindImageDownloads();
 
         showBlock(document.getElementById("imageResults1")); hide(document.getElementById("singlePreview"));
-        setMsg("wmEmbedResp","完成，已寫入區塊鏈");
+        setMsg("wmEmbedResp","完成，已寫入區塊鏈"+(singleEmbed?" 🔐（單次嵌入鎖定已啟用）":""));
         startPolling27037({});
         if(typeof bindZoomToNewImages==="function") bindZoomToNewImages();
         hide(document.getElementById("wmEmbedSpinner")); return;
@@ -494,7 +523,7 @@
       // 顯示區塊鏈資訊
       if(data.blockchain){
         var bc=data.blockchain;
-        setMsg("wmEmbedResp","完成，已寫入區塊鏈 Block #"+bc.block_index+"　Hash："+bc.block_hash.slice(0,16)+"…");
+        setMsg("wmEmbedResp","完成，已寫入區塊鏈 Block #"+bc.block_index+"　Hash："+bc.block_hash.slice(0,16)+"…"+(singleEmbed?" 🔐（單次嵌入鎖定已啟用）":""));
       } else {
         setMsg("wmEmbedResp","完成");
       }
